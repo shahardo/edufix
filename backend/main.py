@@ -1,0 +1,35 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from database import engine
+from models import Base
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="EduFix API", version="1.0.0")
+
+# CORS middleware for frontend integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    """Root endpoint."""
+    return {"message": "Welcome to EduFix API"}
+
+# Include routers
+from routers import auth
+app.include_router(auth.router, prefix="/auth", tags=["authentication"])
+
+# TODO: Add remaining routers for content, qa, practice, analytics, improvement
+# from routers import content, qa, practice, analytics, improvement
+# app.include_router(content.router, prefix="/content", tags=["content"])
+# app.include_router(qa.router, prefix="/qa", tags=["qa"])
+# app.include_router(practice.router, prefix="/practice", tags=["practice"])
+# app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+# app.include_router(improvement.router, prefix="/improvement", tags=["improvement"])
