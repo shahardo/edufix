@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFix - Content Improvement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button onclick="window.location.href='teacher-content.html'" class="mr-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-blue-600">EduFix</h1>
+                    <span class="ml-4 text-lg text-gray-700">Content Improvement Analysis</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="languageToggle" class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+                        <i class="fas fa-globe mr-1"></i>EN
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                        <span class="text-sm text-gray-700">Mr. Smith</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- File Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-red-100 rounded-lg">
+                        <i class="fas fa-file-powerpoint text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">slides_stoichiometry.pptx</h3>
+                        <p class="text-sm text-gray-600">PowerPoint presentation • 2.4 MB • Last modified Jan 10, 2026</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Analysis Complete</span>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Download Improved
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side-by-Side Comparison -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+            <!-- Original Content -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b bg-red-50">
+                    <h4 class="font-medium text-red-900 flex items-center">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        Original Content
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <h5 class="font-semibold text-gray-900 mb-2">Slide 3: The Process of Balancing Chemical Equations</h5>
+                        <p class="text-gray-700 mb-3">
+                            The process of balancing chemical equations is the process of adjusting the coefficients in a chemical equation to ensure that the number of atoms of each element is the same on both sides of the equation.
+                        </p>
+                        <div class="bg-white border rounded p-2 text-center font-mono text-sm">
+                            C + O₂ → CO₂
+                        </div>
+                        <p class="text-xs text-gray-600 mt-2">This equation needs balancing!</p>
+                    </div>
+
+                    <div class="text-xs text-gray-500 text-center">
+                        Slide content extracted from PowerPoint
+                    </div>
+                </div>
+            </div>
+
+            <!-- Improved Content -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b bg-green-50">
+                    <h4 class="font-medium text-green-900 flex items-center">
+                        <i class="fas fa-magic mr-2"></i>
+                        AI-Improved Content
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <h5 class="font-semibold text-gray-900 mb-2">Slide 3: Balancing Chemical Equations</h5>
+                        <p class="text-gray-700 mb-3">
+                            Balancing chemical equations involves adjusting coefficients to ensure equal numbers of atoms on both sides. This follows the law of conservation of mass.
+                        </p>
+                        <div class="bg-white border rounded p-2 text-center font-mono text-sm mb-2">
+                            C + O₂ → CO₂
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
+                            <p class="text-xs text-blue-800 font-medium">Example:</p>
+                            <div class="font-mono text-sm text-center">2C + O₂ → 2CO</div>
+                        </div>
+                        <p class="text-xs text-gray-600">Count atoms: C(2), O(2) on both sides</p>
+                    </div>
+
+                    <div class="text-xs text-gray-500 text-center">
+                        AI-generated improvements applied
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggestions Panel -->
+        <div class="bg-white rounded-lg shadow-sm border">
+            <div class="p-6 border-b">
+                <h4 class="text-lg font-medium text-gray-900">AI Suggestions & Improvements</h4>
+                <p class="text-sm text-gray-600 mt-1">Review and apply suggested changes to enhance your content</p>
+            </div>
+
+            <div class="p-6 space-y-6">
+
+                <!-- Suggestion 1 -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Clarity</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">High Impact</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                            <button class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5 class="font-medium text-gray-900 mb-2">Sentence Length & Clarity</h5>
+                        <div class="bg-red-50 p-3 rounded mb-2">
+                            <p class="text-sm text-red-800">
+                                <strong>Original:</strong> "The process of balancing chemical equations is the process of adjusting the coefficients in a chemical equation to ensure that the number of atoms of each element is the same on both sides of the equation."
+                            </p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded mb-2">
+                            <p class="text-sm text-green-800">
+                                <strong>Improved:</strong> "Balancing chemical equations involves adjusting coefficients to ensure equal numbers of atoms on both sides. This follows the law of conservation of mass."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <strong>Rationale:</strong> The original sentence was 45 words long and repetitive. Breaking it into two clearer sentences improves readability for students, especially ESL learners.
+                    </div>
+                </div>
+
+                <!-- Suggestion 2 -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Pedagogy</span>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Medium Impact</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                            <button class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5 class="font-medium text-gray-900 mb-2">Add Concrete Example</h5>
+                        <div class="bg-gray-50 p-3 rounded">
+                            <p class="text-sm text-gray-700">
+                                <strong>Suggestion:</strong> Add a balanced equation example with atom counting to demonstrate the concept visually.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <strong>Rationale:</strong> Concrete examples help students understand abstract concepts. Visual demonstrations of atom counting improve comprehension.
+                    </div>
+                </div>
+
+                <!-- Suggestion 3 -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Accessibility</span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Low Impact</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                            <button class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5 class="font-medium text-gray-900 mb-2">Font Size Optimization</h5>
+                        <div class="bg-gray-50 p-3 rounded">
+                            <p class="text-sm text-gray-700">
+                                <strong>Suggestion:</strong> Increase slide text from 16pt to 20pt for better readability.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <strong>Rationale:</strong> Larger font sizes improve accessibility for visually impaired students and enhance readability in classroom settings.
+                    </div>
+                </div>
+
+                <!-- Suggestion 4 -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Structure</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">High Impact</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                            <button class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5 class="font-medium text-gray-900 mb-2">Add Learning Objectives</h5>
+                        <div class="bg-gray-50 p-3 rounded">
+                            <p class="text-sm text-gray-700">
+                                <strong>Suggestion:</strong> Add clear learning objectives at the beginning of the lesson: "By the end of this lesson, you will be able to balance chemical equations using the coefficient method."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <strong>Rationale:</strong> Clear objectives help students understand what they will learn and provide focus for the lesson content.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="px-6 pb-6 flex flex-col sm:flex-row gap-4 justify-end border-t pt-6">
+                <button class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-magic mr-2"></i>Apply All Improvements
+                </button>
+                <button class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                    <i class="fas fa-check mr-2"></i>Apply Selected
+                </button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-eye mr-2"></i>Preview Changes
+                </button>
+                <button onclick="window.location.href='teacher-content.html'" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Discard
+                </button>
+            </div>
+        </div>
+
+        <!-- Improvement Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">4</div>
+                <div class="text-sm text-gray-600">Suggestions Found</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600">87%</div>
+                <div class="text-sm text-gray-600">Clarity Score</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600">12pt</div>
+                <div class="text-sm text-gray-600">Avg Font Size</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border p-4 text-center">
+                <div class="text-2xl font-bold text-orange-600">2.1</div>
+                <div class="text-sm text-gray-600">Readability Grade</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Language toggle functionality
+        const languageToggle = document.getElementById('languageToggle');
+        let isEnglish = true;
+
+        languageToggle.addEventListener('click', () => {
+            isEnglish = !isEnglish;
+            languageToggle.innerHTML = `<i class="fas fa-globe mr-1"></i>${isEnglish ? 'EN' : 'עברית'}`;
+        });
+
+        // Suggestion interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add click handlers for accept/reject/edit buttons
+            const actionButtons = document.querySelectorAll('button:has(.fa-check), button:has(.fa-times), button:has(.fa-edit)');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Visual feedback
+                    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+                    setTimeout(() => {
+                        this.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+                    }, 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFix - Group Learning Session</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button onclick="window.location.href='teacher-dashboard.html'" class="mr-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-lg font-semibold text-gray-900">Group Session: Redox Reactions</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="languageToggle" class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+                        <i class="fas fa-globe mr-1"></i>EN
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-clock text-gray-600"></i>
+                        <span class="text-sm text-gray-600">25 min remaining</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Session Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900">Redox Reactions Review</h2>
+                    <p class="text-gray-600">Group members: Alice, Bob, Sarah, James</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-600">Duration: 45 min</div>
+                    <div class="text-sm text-gray-600">Topic: Redox Chemistry</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: 44%"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+                <span>44% complete</span>
+                <span>25 min remaining</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Central Question/Task Area -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Task Description -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Central Question</h3>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h4 class="font-semibold text-blue-900 mb-2">Balance the following redox equation:</h4>
+                        <div class="text-xl font-mono text-center py-4">
+                            Fe²⁺ + MnO₄⁻ + H⁺ → Fe³⁺ + Mn²⁺ + H₂O
+                        </div>
+                        <div class="mt-4 space-y-2 text-sm text-blue-800">
+                            <p><strong>Discuss:</strong></p>
+                            <ul class="list-disc list-inside space-y-1 ml-4">
+                                <li>Identify oxidation state changes</li>
+                                <li>Determine oxidizing and reducing agents</li>
+                                <li>Balance using the half-reaction method</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shared Whiteboard -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-4 border-b">
+                        <h3 class="font-medium text-gray-900">Shared Whiteboard</h3>
+                        <p class="text-sm text-gray-600">Collaborate on your solution</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-gray-50 rounded-lg p-6 min-h-64">
+                            <!-- Simulated whiteboard content -->
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs font-medium">AC</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Alice</div>
+                                        <div class="text-sm text-gray-700 mt-1">
+                                            Fe: +2 → +3 (oxidation)<br>
+                                            Mn: +7 → +2 (reduction)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs font-medium">BR</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Bob</div>
+                                        <div class="text-sm text-gray-700 mt-1">
+                                            MnO₄⁻ is the oxidizing agent because it causes Fe²⁺ to be oxidized.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs font-medium">SC</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">Sarah</div>
+                                        <div class="text-sm text-gray-700 mt-1">
+                                            How do we balance the charge? The equation has H⁺ on the left.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Drawing area placeholder -->
+                            <div class="mt-6 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                <i class="fas fa-palette text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-gray-500">Drawing area for diagrams and sketches</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Explanation Mode & System Assistant -->
+            <div class="space-y-6">
+
+                <!-- Explanation Mode -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-4 border-b">
+                        <h3 class="font-medium text-gray-900">Explanation Mode</h3>
+                        <p class="text-sm text-gray-600">Rotating presenter: Alice</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white font-medium">AC</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">Alice Chen</div>
+                                <div class="text-sm text-green-600">Explainer</div>
+                            </div>
+                            <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                                2 min speaking
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <p class="text-gray-700">
+                                In this reaction, we need to look at oxidation states. Fe goes from +2 to +3, so it's being oxidized. Mn goes from +7 to +2, so it's being reduced. The MnO₄⁻ is the oxidizing agent because it causes Fe²⁺ to be oxidized.
+                            </p>
+                        </div>
+
+                        <!-- Peer Reactions -->
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <button class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-thumbs-up"></i>
+                                </button>
+                                <span class="text-sm text-gray-600">Good explanation!</span>
+                            </div>
+
+                            <div class="flex items-start space-x-3">
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-question-circle"></i>
+                                </button>
+                                <span class="text-sm text-gray-600">Doesn't understand step 2</span>
+                            </div>
+                        </div>
+
+                        <!-- Questions from peers -->
+                        <div class="mt-4 space-y-2">
+                            <div class="text-sm">
+                                <span class="font-medium text-gray-900">Bob:</span>
+                                <span class="text-gray-700 ml-2">"Why is Mn +7 in MnO₄⁻?"</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium text-gray-900">Sarah:</span>
+                                <span class="text-gray-700 ml-2">"How do we balance the charge?"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Assistant -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-4 border-b">
+                        <h3 class="font-medium text-gray-900">System Assistant</h3>
+                    </div>
+                    <div class="p-4 space-y-4">
+
+                        <!-- Suggestion -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-lightbulb text-blue-600 mt-1"></i>
+                                <div class="text-sm">
+                                    <div class="font-medium text-blue-900">Suggestion for next explainer:</div>
+                                    <div class="text-blue-800 mt-1">
+                                        "Try explaining the oxidation states by calculating them step-by-step. E.g., O is usually -2, and there are 4 Os in MnO₄⁻, so: Mn + 4(-2) = -1, so Mn = +7"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                                <div class="text-sm">
+                                    <div class="font-medium text-green-900">Alice's explanation was clear and accurate!</div>
+                                    <div class="text-green-800 mt-1">+25 points for peer teaching</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Misconception Alert -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                                <div class="text-sm">
+                                    <div class="font-medium text-yellow-900">Potential misconception detected:</div>
+                                    <div class="text-yellow-800 mt-1">
+                                        "Oxidizing agent" was used correctly. Good job identifying the species that causes oxidation.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Controls -->
+                <div class="bg-white rounded-lg shadow-sm border p-4">
+                    <div class="space-y-3">
+                        <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Show Next Explainer
+                        </button>
+                        <button class="w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+                            End Session Early
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Participants -->
+                <div class="bg-white rounded-lg shadow-sm border p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">Participants</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-medium">AC</span>
+                            </div>
+                            <span class="text-sm text-gray-700">Alice Chen (Explainer)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-medium">BR</span>
+                            </div>
+                            <span class="text-sm text-gray-700">Bob Rodriguez</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-medium">SC</span>
+                            </div>
+                            <span class="text-sm text-gray-700">Sarah Chen</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs font-medium">JC</span>
+                            </div>
+                            <span class="text-sm text-gray-700">James Carter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Language toggle functionality
+        const languageToggle = document.getElementById('languageToggle');
+        let isEnglish = true;
+
+        languageToggle.addEventListener('click', () => {
+            isEnglish = !isEnglish;
+            languageToggle.innerHTML = `<i class="fas fa-globe mr-1"></i>${isEnglish ? 'EN' : 'עברית'}`;
+        });
+
+        // Group learning interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add click handlers for thumbs up/questions
+            const reactionButtons = document.querySelectorAll('[class*="hover:text-"]');
+            reactionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.classList.toggle('text-green-800');
+                    this.classList.toggle('text-blue-800');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

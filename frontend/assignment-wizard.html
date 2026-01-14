@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFix - Create Assignment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button onclick="window.location.href='teacher-dashboard.html'" class="mr-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-blue-600">EduFix</h1>
+                    <span class="ml-4 text-lg text-gray-700">Create Assignment</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="languageToggle" class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+                        <i class="fas fa-globe mr-1"></i>EN
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                        <span class="text-sm text-gray-700">Mr. Smith</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Progress Steps -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-medium text-gray-900">Create Assignment</h2>
+                <span class="text-sm text-gray-600">Step 2 of 4</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
+            </div>
+
+            <!-- Steps -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <div class="text-xs text-gray-600">Basic Setup</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span class="text-white text-sm font-medium">2</span>
+                    </div>
+                    <div class="text-xs font-medium text-blue-600">Content</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span class="text-gray-600 text-sm font-medium">3</span>
+                    </div>
+                    <div class="text-xs text-gray-600">Policy</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span class="text-gray-600 text-sm font-medium">4</span>
+                    </div>
+                    <div class="text-xs text-gray-600">Review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Content -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <h3 class="text-xl font-medium text-gray-900 mb-6">Select Content & Topics</h3>
+
+            <!-- Assignment Name & Class -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Assignment Name</label>
+                    <input
+                        type="text"
+                        value="Stoichiometry Homework"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        readonly
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Class</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option>Chemistry 10B (26 students)</option>
+                        <option>Physics 10A (24 students)</option>
+                        <option>Biology 10C (22 students)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Subject & Topics -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <option>Chemistry</option>
+                    <option>Physics</option>
+                    <option>Biology</option>
+                    <option>Mathematics</option>
+                </select>
+            </div>
+
+            <!-- Topics Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Topics to Include</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="stoichiometry" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                            <label for="stoichiometry" class="ml-2 text-sm text-gray-900">Stoichiometry</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="limiting-reactants" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                            <label for="limiting-reactants" class="ml-2 text-sm text-gray-900">Limiting Reactants</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="redox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="redox" class="ml-2 text-sm text-gray-900">Redox Reactions</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="oxidation-states" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="oxidation-states" class="ml-2 text-sm text-gray-900">Oxidation States</label>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="bonding" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="bonding" class="ml-2 text-sm text-gray-900">Chemical Bonding</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="solutions" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="solutions" class="ml-2 text-sm text-gray-900">Solutions & Concentrations</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="equilibrium" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="equilibrium" class="ml-2 text-sm text-gray-900">Chemical Equilibrium</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Difficulty Level -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
+                <div class="flex items-center space-x-4">
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="medium">Medium</option>
+                        <option value="easy">Easy</option>
+                        <option value="hard">Hard</option>
+                        <option value="mixed">Mixed</option>
+                    </select>
+                    <span class="text-sm text-gray-600">Suggested: Medium (based on class mastery)</span>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                    Override to: <button class="text-blue-600 hover:text-blue-800">Easy</button> | <button class="text-blue-600 hover:text-blue-800">Medium</button> | <button class="text-blue-600 hover:text-blue-800">Hard</button>
+                </div>
+            </div>
+
+            <!-- Question Source -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Question Source</label>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <input type="radio" id="system-generated" name="question-source" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                        <label for="system-generated" class="ml-2 text-sm text-gray-900">
+                            <span class="font-medium">System-Generated</span> - Auto-create questions at specified difficulty
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="teacher-created" name="question-source" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                        <label for="teacher-created" class="ml-2 text-sm text-gray-900">
+                            <span class="font-medium">Teacher-Created</span> - Upload or create your own questions
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="mixed" name="question-source" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                        <label for="mixed" class="ml-2 text-sm text-gray-900">
+                            <span class="font-medium">Mixed</span> - Combine system and teacher-created questions
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Number of Questions -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Questions</label>
+                <div class="flex items-center space-x-4">
+                    <input
+                        type="number"
+                        value="8"
+                        min="1"
+                        max="20"
+                        class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    <span class="text-sm text-gray-600">Estimated time: ~25 minutes</span>
+                </div>
+            </div>
+
+            <!-- Question Preview -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h4 class="font-medium text-gray-900 mb-4">Question Preview</h4>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mb-4">
+                    <i class="fas fa-refresh mr-2"></i>Generate Preview
+                </button>
+
+                <div class="space-y-4">
+                    <div class="bg-white border rounded-lg p-4">
+                        <h5 class="font-medium text-gray-900 mb-2">Q1: Stoichiometry</h5>
+                        <p class="text-sm text-gray-700 mb-2">
+                            If 2.0 moles of H₂ react with 1.0 mole of O₂ according to 2H₂ + O₂ → 2H₂O, which is the limiting reactant?
+                        </p>
+                        <div class="text-xs text-gray-600 space-y-1">
+                            <div>• H₂</div>
+                            <div>• O₂</div>
+                            <div>• H₂O</div>
+                            <div>• Not enough info</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border rounded-lg p-4">
+                        <h5 class="font-medium text-gray-900 mb-2">Q2: Limiting Reactants</h5>
+                        <p class="text-sm text-gray-700 mb-2">
+                            For the reaction: N₂ + 3H₂ → 2NH₃, if you have 5 moles of N₂ and 10 moles of H₂, what is the maximum moles of NH₃ that can be produced?
+                        </p>
+                        <div class="text-xs text-gray-600">Numeric answer expected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between">
+            <button onclick="window.history.back()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </button>
+            <button onclick="nextStep()" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                Continue <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Language toggle functionality
+        const languageToggle = document.getElementById('languageToggle');
+        let isEnglish = true;
+
+        languageToggle.addEventListener('click', () => {
+            isEnglish = !isEnglish;
+            languageToggle.innerHTML = `<i class="fas fa-globe mr-1"></i>${isEnglish ? 'EN' : 'עברית'}`;
+        });
+
+        // Step navigation
+        function nextStep() {
+            // In a real app, this would validate the form and move to step 3
+            alert('Moving to Step 3: Policy Settings\n(This would navigate to the next step in a real application)');
+        }
+
+        // Topic selection validation
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Update question count estimate based on selected topics
+                    const checkedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
+                    if (checkedCount > 0) {
+                        const estimatedQuestions = Math.min(checkedCount * 2, 12);
+                        // Update the number input
+                        document.querySelector('input[type="number"]').value = estimatedQuestions;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

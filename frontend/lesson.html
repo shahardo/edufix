@@ -41,20 +41,26 @@
                 <div class="bg-white rounded-lg shadow-sm border">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-medium text-gray-900">Lesson Content</h2>
-                            <div class="flex items-center space-x-2">
-                                <button class="p-2 text-gray-400 hover:text-gray-600">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <span class="text-sm text-gray-600">3 / 12</span>
-                                <button class="p-2 text-gray-400 hover:text-gray-600">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-600">Slide 3/12</span>
+                                <div class="flex items-center space-x-2">
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 rounded">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="p-2 text-gray-400 hover:text-gray-600 rounded">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded">Slides</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 hover:text-blue-600">Notes</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 hover:text-blue-600">Glossary</button>
                             </div>
                         </div>
 
                         <!-- Slide Content -->
-                        <div class="bg-gray-50 rounded-lg p-8 text-center">
+                        <div class="bg-gray-50 rounded-lg p-8 text-center min-h-96">
                             <h3 class="text-2xl font-bold text-gray-900 mb-6">The Process of Balancing Chemical Equations</h3>
 
                             <div class="max-w-2xl mx-auto">
@@ -86,15 +92,6 @@
                                         </p>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Navigation Tabs -->
-                        <div class="mt-6 border-t pt-4">
-                            <div class="flex space-x-4">
-                                <button class="px-4 py-2 bg-blue-600 text-white rounded-md">Slides</button>
-                                <button class="px-4 py-2 text-gray-600 hover:text-blue-600">Notes</button>
-                                <button class="px-4 py-2 text-gray-600 hover:text-blue-600">Glossary</button>
                             </div>
                         </div>
                     </div>
@@ -145,6 +142,29 @@
                     </div>
                 </div>
 
+                <!-- Concept Glossary -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-4 border-b">
+                        <h3 class="font-medium text-gray-900">Glossary</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-3">
+                            <div class="border-l-4 border-blue-500 pl-3">
+                                <div class="font-medium text-gray-900">Stoichiometry</div>
+                                <div class="text-sm text-gray-600">The calculation of reactants and products in chemical reactions</div>
+                            </div>
+                            <div class="border-l-4 border-green-500 pl-3">
+                                <div class="font-medium text-gray-900">Mole</div>
+                                <div class="text-sm text-gray-600">Unit of measurement for chemical substances (6.022 × 10²³ particles)</div>
+                            </div>
+                            <div class="border-l-4 border-purple-500 pl-3">
+                                <div class="font-medium text-gray-900">Coefficient</div>
+                                <div class="text-sm text-gray-600">Number placed before a chemical formula in an equation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quick Actions -->
                 <div class="bg-white rounded-lg shadow-sm border">
                     <div class="p-4">
@@ -154,15 +174,7 @@
                                 onclick="window.location.href='practice.html'"
                                 class="w-full px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                             >
-                                <i class="fas fa-play mr-2"></i>Start Practice on Topic
-                            </button>
-
-                            <button class="w-full px-4 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors">
-                                <i class="fas fa-book mr-2"></i>View Full Lesson Notes
-                            </button>
-
-                            <button class="w-full px-4 py-3 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors">
-                                <i class="fas fa-question-circle mr-2"></i>Glossary Terms
+                                <i class="fas fa-play mr-2"></i>Start practice
                             </button>
                         </div>
                     </div>

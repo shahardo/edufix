@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFix - Homework Submission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button onclick="window.location.href='index.html'" class="mr-4 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-lg font-semibold text-gray-900">Stoichiometry Homework</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="languageToggle" class="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+                        <i class="fas fa-globe mr-1"></i>EN
+                    </button>
+                    <div class="text-sm text-gray-600">
+                        Due: Today 11:59 PM
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Assignment Overview -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">Assignment Overview</h2>
+                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">IN PROGRESS</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">Topic</h3>
+                    <p class="text-gray-600">Stoichiometry & Limiting Reactants</p>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">Learning Goals</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Identify limiting reactants in reactions</li>
+                        <li>• Calculate product yields using stoichiometry</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">8</div>
+                    <div class="text-sm text-blue-700">Total Questions</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">4</div>
+                    <div class="text-sm text-green-700">Answered</div>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600">25 min</div>
+                    <div class="text-sm text-yellow-700">Estimated Time</div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-clock text-gray-400"></i>
+                    <span class="text-sm text-gray-600">Time Remaining: 8 hours 45 minutes</span>
+                </div>
+                <div class="text-sm text-gray-600">
+                    Progress: <span class="font-medium">4/8 questions</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-1 text-center">50% complete</p>
+            </div>
+        </div>
+
+        <!-- Questions Navigation -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <h3 class="font-medium text-gray-900 mb-4">Questions</h3>
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-2 mb-4">
+                <button class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(1)">1</button>
+                <button class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(2)">2</button>
+                <button class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(3)">3</button>
+                <button class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(4)">4</button>
+                <button class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(5)">5</button>
+                <button class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(6)">6</button>
+                <button class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(7)">7</button>
+                <button class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium" onclick="goToQuestion(8)">8</button>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button class="px-4 py-2 text-gray-600 hover:text-gray-800" id="prevBtn" disabled>
+                    <i class="fas fa-chevron-left mr-1"></i> Previous
+                </button>
+                <span class="text-sm text-gray-600">Question 4 of 8</span>
+                <button class="px-4 py-2 text-gray-600 hover:text-gray-800" id="nextBtn">
+                    Next <i class="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Question -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6" id="questionCard">
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Question 4</h3>
+
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <p class="text-gray-900 mb-4">
+                        If 5.0 moles of N₂ react with 15.0 moles of H₂ according to the equation:<br>
+                        <span class="font-mono text-lg">N₂ + 3H₂ → 2NH₃</span><br>
+                        what is the maximum moles of NH₃ that can be produced?
+                    </p>
+                </div>
+
+                <!-- Answer Input -->
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-gray-700">Your Answer:</label>
+                    <div class="flex items-center space-x-4">
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="answerInput"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter number of moles"
+                        >
+                        <span class="text-gray-700">moles</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                <button onclick="saveDraft()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                    Save Draft
+                </button>
+                <button onclick="checkAnswer()" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Check Answer
+                </button>
+                <button onclick="submitHomework()" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                    Submit Homework
+                </button>
+            </div>
+
+            <div class="mt-4 text-sm text-gray-600">
+                <i class="fas fa-save mr-1"></i> Auto-saves every 30 seconds
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h4 class="font-medium text-blue-900 mb-2">Instructions</h4>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• Answer all questions to the best of your ability</li>
+                <li>• You can save drafts and return later</li>
+                <li>• Check your answers before submitting</li>
+                <li>• Show your work clearly for partial credit</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Mobile Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around items-center">
+            <button onclick="window.location.href='index.html'" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">Home</span>
+            </button>
+            <button onclick="window.location.href='lesson.html'" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <i class="fas fa-book text-xl"></i>
+                <span class="text-xs mt-1">Lessons</span>
+            </button>
+            <button onclick="window.location.href='practice.html'" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <i class="fas fa-brain text-xl"></i>
+                <span class="text-xs mt-1">Practice</span>
+            </button>
+            <button onclick="window.location.href='teacher-dashboard.html'" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <i class="fas fa-chart-bar text-xl"></i>
+                <span class="text-xs mt-1">Dashboard</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // Language toggle functionality
+        const languageToggle = document.getElementById('languageToggle');
+        let isEnglish = true;
+
+        languageToggle.addEventListener('click', () => {
+            isEnglish = !isEnglish;
+            languageToggle.innerHTML = `<i class="fas fa-globe mr-1"></i>${isEnglish ? 'EN' : 'עברית'}`;
+        });
+
+        // Homework functionality
+        let currentQuestion = 4;
+        const totalQuestions = 8;
+        const answers = {}; // Store answers
+
+        function goToQuestion(questionNum) {
+            currentQuestion = questionNum;
+            // In a real app, this would load the specific question
+            alert(`Navigating to question ${questionNum}`);
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 1;
+            document.getElementById('nextBtn').disabled = currentQuestion === totalQuestions;
+            // Update question counter display
+        }
+
+        function saveDraft() {
+            const answer = document.getElementById('answerInput').value;
+            answers[currentQuestion] = answer;
+            alert('Draft saved!');
+        }
+
+        function checkAnswer() {
+            const answer = parseFloat(document.getElementById('answerInput').value);
+            const correctAnswer = 10; // 5 moles N₂ * (2 moles NH₃ / 1 mole N₂) = 10 moles NH₃
+
+            if (isNaN(answer)) {
+                alert('Please enter a valid number.');
+                return;
+            }
+
+            if (Math.abs(answer - correctAnswer) < 0.01) {
+                alert('Correct! Well done.');
+            } else {
+                alert(`Not quite right. The correct answer is ${correctAnswer} moles. Try again or ask for help.`);
+            }
+        }
+
+        function submitHomework() {
+            if (confirm('Are you sure you want to submit this homework? You won\'t be able to make changes after submission.')) {
+                alert('Homework submitted successfully!');
+                window.location.href = 'homework-results.html';
+            }
+        }
+
+        // Auto-save simulation
+        setInterval(() => {
+            // In a real app, this would save to server
+            console.log('Auto-saving...');
+        }, 30000);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavigation();
+        });
+    </script>
+</body>
+</html>
