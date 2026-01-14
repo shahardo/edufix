@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
 from database import Base
 
 class User(Base):
@@ -46,6 +49,9 @@ class Course(Base):
     class_id = Column(Integer, ForeignKey("classes.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Relationships
+    class_ = relationship("Class", backref="courses")
+
 class Unit(Base):
     """Unit within a course."""
     __tablename__ = "units"
@@ -55,6 +61,10 @@ class Unit(Base):
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Relationships
+    course = relationship("Course", backref="units")
+    lessons = relationship("Lesson", backref="unit")
+
 class Lesson(Base):
     """Lesson model."""
     __tablename__ = "lessons"
@@ -63,6 +73,10 @@ class Lesson(Base):
     title = Column(String, nullable=False)
     unit_id = Column(Integer, ForeignKey("units.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    materials = relationship("Material", backref="lesson")
+    questions = relationship("Question", backref="lesson")
 
 class Material(Base):
     """Teaching material (slides, PDFs, etc.)."""
@@ -103,6 +117,10 @@ class UserAnswer(Base):
     hints_used = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Relationships
+    user = relationship("User", backref="answers")
+    question = relationship("Question", backref="answers")
+
 class Mastery(Base):
     """Mastery scores per topic."""
     __tablename__ = "masteries"
@@ -112,6 +130,9 @@ class Mastery(Base):
     topic = Column(String, nullable=False)
     score = Column(Float, nullable=False)  # 0-100
     updated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    user = relationship("User", backref="masteries")
 
 class Gamification(Base):
     """Gamification data."""
@@ -123,3 +144,58 @@ class Gamification(Base):
     badges = Column(Text)  # JSON string
     streak = Column(Integer, default=0)
     updated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Session(Base):
+    """User session tracking for analytics."""
+    __tablename__ = "sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    session_type = Column(String, nullable=False)  # "practice", "lesson", "homework"
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True))
+    duration = Column(Float)  # minutes
+    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    questions_attempted = Column(Integer, default=0)
+    correct_answers = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    user = relationship("User", backref="sessions")
+    lesson = relationship("Lesson", backref="sessions")
+
+class Progress(Base):
+    """Student progress tracking."""
+    __tablename__ = "progress"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    completion_percentage = Column(Float, default=0.0)  # 0-100
+    time_spent = Column(Float, default=0.0)  # minutes
+    last_accessed = Column(DateTime(timezone=True), server_default=func.now())
+    status = Column(String, default="not_started")  # "not_started", "in_progress", "completed"
+
+    # Relationships
+    user = relationship("User", backref="progress")
+    lesson = relationship("Lesson", backref="progress")
+
+class Intervention(Base):
+    """Teacher interventions and recommendations."""
+    __tablename__ = "interventions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    intervention_type = Column(String, nullable=False)  # "remedial", "enrichment", "attention_needed"
+    description = Column(Text, nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    priority = Column(String, default="medium")  # "low", "medium", "high"
+    status = Column(String, default="pending")  # "pending", "in_progress", "resolved"
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    resolved_at = Column(DateTime(timezone=True))
+
+    # Relationships
+    student = relationship("User", foreign_keys=[student_id], backref="student_interventions")
+    teacher = relationship("User", foreign_keys=[teacher_id], backref="teacher_interventions")
+    lesson = relationship("Lesson", backref="interventions")

@@ -3,12 +3,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# For Phase 1, use SQLite for simplicity. In production, switch to PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./edufix.db")
+# Database configuration for Phase 1B (using SQLite for demo, PostgreSQL in production)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./backend/edufix.db")
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {},
+    pool_pre_ping=True,  # Verify connections before use
+    pool_recycle=300,    # Recycle connections after 5 minutes
+    echo=False           # Set to True for SQL query logging in development
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
