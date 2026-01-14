@@ -13,7 +13,7 @@ This phase implements core backend APIs and interactive mock screens for EduFix 
 - [x] Interactive demo: Upload materials, organize by course structure
 
 ### Priority 2: Practice System Router + Mock Student Practice Flow
-- [ ] Backend: Question serving, hints, answer processing
+- [x] Backend: Question serving, hints, answer processing
 - [x] Mock Screen: Student practice interface (as per Mockups 3)
 - [x] Interactive demo: Question progression, hint levels, feedback
 
@@ -26,6 +26,35 @@ This phase implements core backend APIs and interactive mock screens for EduFix 
 - [ ] Backend: Dashboard data aggregation, student profiles
 - [x] Mock Screen: Teacher dashboard (as per Mockup 4) + student profiles (Mockup 7)
 - [x] Interactive demo: View class metrics, drill into student details
+
+## API Endpoints Documentation
+
+### Content Management API (`/api`)
+- `POST /courses` - Create a new course
+- `GET /courses` - Get courses (filtered by class_id)
+- `GET /courses/{course_id}` - Get specific course
+- `POST /units` - Create a new unit
+- `GET /units` - Get units (filtered by course_id)
+- `POST /lessons` - Create a new lesson
+- `GET /lessons` - Get lessons (filtered by unit_id)
+- `POST /materials/upload` - Upload material file
+- `GET /materials` - Get materials (filtered by lesson_id)
+- `GET /materials/{material_id}/download` - Download material file
+
+### Practice System API (`/api/practice`)
+- `GET /questions/next` - Get next question for practice (adaptive selection based on mastery)
+  - Query params: lesson_id, unit_id, subject
+- `POST /questions/{question_id}/answer` - Submit answer to question
+  - Updates mastery, gamification, and user progress
+- `GET /questions/{question_id}/hints` - Get hint for question (3 levels available)
+  - Query param: hint_level (1-3)
+- `GET /mastery` - Get user's mastery scores for all topics
+- `GET /gamification` - Get user's gamification data (points, badges, streak)
+
+### Authentication API (`/auth`)
+- `POST /register` - Register new user
+- `POST /token` - Login and get access token
+- `GET /users/me` - Get current user info
 
 ## Technical Implementation
 

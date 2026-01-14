@@ -23,13 +23,13 @@ def read_root():
     return {"message": "Welcome to EduFix API"}
 
 # Include routers
-from routers import auth, content
+from routers import auth, content, practice
 app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(content.router, prefix="/api", tags=["content"])
+app.include_router(practice.router, prefix="/api/practice", tags=["practice"])
 
-# TODO: Add remaining routers for qa, practice, analytics, improvement
-# from routers import qa, practice, analytics, improvement
+# TODO: Add remaining routers for qa, analytics, improvement
+# from routers import qa, analytics, improvement
 # app.include_router(qa.router, prefix="/qa", tags=["qa"])
-# app.include_router(practice.router, prefix="/practice", tags=["practice"])
 # app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 # app.include_router(improvement.router, prefix="/improvement", tags=["improvement"])
