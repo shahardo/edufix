@@ -103,7 +103,20 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-@router.post("/register", response_model=UserResponse)
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    summary="Register New User",
+    description="""
+    Register a new user account (student or teacher).
+
+    **Note**: Students should be assigned to classes by teachers after registration.
+    """,
+    responses={
+        200: {"description": "User successfully registered"},
+        400: {"description": "Username or email already exists"}
+    }
+)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user."""
     # Check if user already exists

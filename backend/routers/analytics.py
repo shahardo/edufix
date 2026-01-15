@@ -51,7 +51,27 @@ class InterventionCreate(BaseModel):
     lesson_id: Optional[int] = None
 
 # Analytics endpoints
-@router.get("/dashboard", response_model=DashboardMetrics)
+@router.get(
+    "/dashboard",
+    response_model=DashboardMetrics,
+    summary="Get Teacher Dashboard",
+    description="""
+    Retrieve comprehensive dashboard metrics for teachers including:
+
+    - **Total Students**: Number of students in all teacher's classes
+    - **Active Students Today**: Students who had learning sessions today
+    - **Average Mastery Score**: Overall class performance across all topics
+    - **Total Questions Attempted**: Cumulative practice questions answered
+    - **Completion Rate**: Percentage of students who completed lessons
+    - **Top Performing Students**: Highest-scoring students with their mastery levels
+
+    **Note**: Only teachers can access this endpoint. Data aggregates across all classes owned by the teacher.
+    """,
+    responses={
+        200: {"description": "Dashboard metrics retrieved successfully"},
+        403: {"description": "Access denied - Only teachers can view dashboard"}
+    }
+)
 def get_teacher_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get dashboard metrics for teachers."""
     if current_user.role != "teacher":
@@ -128,7 +148,32 @@ def get_teacher_dashboard(db: Session = Depends(get_db), current_user: User = De
         top_performing_students=top_performing_students
     )
 
-@router.get("/students/{student_id}/insights", response_model=StudentInsight)
+@router.get(
+    "/students/{student_id}/insights",
+    response_model=StudentInsight,
+    summary="Get Student Insights",
+    description="""
+    Retrieve detailed performance analytics for a specific student including:
+
+    - **Mastery Scores**: Performance across different topics/subjects
+    - **Recent Activity**: Last 10 learning sessions with duration and accuracy
+    - **Progress Rate**: Percentage of completed lessons
+    - **AI Recommendations**: Personalized suggestions based on performance patterns
+
+    **Mastery Levels:**
+    - 80-100: Expert
+    - 60-79: Advanced
+    - 40-59: Intermediate
+    - 0-39: Beginner
+
+    **Note**: Only teachers can access insights for students in their classes.
+    """,
+    responses={
+        200: {"description": "Student insights retrieved successfully"},
+        403: {"description": "Access denied - Student not in teacher's class"},
+        404: {"description": "Student not found"}
+    }
+)
 def get_student_insights(
     student_id: int,
     db: Session = Depends(get_db),
