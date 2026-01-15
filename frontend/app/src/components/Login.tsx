@@ -8,7 +8,7 @@ type LoginForm = {
   rememberMe: boolean;
 };
 
-type Role = 'student' | 'teacher';
+type Role = 'student' | 'teacher' | 'manager';
 
 const Login = () => {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
@@ -32,17 +32,20 @@ const Login = () => {
     // Demo login logic - in production, this would call the API
     const validCredentials = {
       student: { username: 'student1', password: 'password' },
-      teacher: { username: 'teacher1', password: 'password' }
+      teacher: { username: 'teacher1', password: 'password' },
+      manager: { username: 'manager1', password: 'password' }
     };
 
-    if (data.username === validCredentials[selectedRole].username &&
+    if (selectedRole in validCredentials && data.username === validCredentials[selectedRole].username &&
         data.password === validCredentials[selectedRole].password) {
 
       // Successful login - redirect based on role
       if (selectedRole === 'student') {
         navigate('/student');
-      } else {
+      } else if (selectedRole === 'teacher') {
         navigate('/teacher');
+      } else if (selectedRole === 'manager') {
+        navigate('/manager');
       }
     } else {
       setErrorMessage('Invalid credentials. Please try again.');
@@ -73,7 +76,7 @@ const Login = () => {
           {/* Role Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">I am a:</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => selectRole('student')}
@@ -97,6 +100,18 @@ const Login = () => {
               >
                 <i className="fas fa-chalkboard-teacher text-green-600 mb-2 text-xl"></i>
                 <div className="text-sm font-medium text-gray-900">Teacher</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => selectRole('manager')}
+                className={`role-btn px-4 py-3 border-2 rounded-lg transition-colors ${
+                  selectedRole === 'manager'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
+                }`}
+              >
+                <i className="fas fa-cog text-purple-600 mb-2 text-xl"></i>
+                <div className="text-sm font-medium text-gray-900">Manager</div>
               </button>
             </div>
           </div>
@@ -201,6 +216,7 @@ const Login = () => {
             <div className="text-xs text-gray-600 space-y-1">
               <div><strong>Student:</strong> student1 / password</div>
               <div><strong>Teacher:</strong> teacher1 / password</div>
+              <div><strong>Manager:</strong> manager1 / password</div>
             </div>
           </div>
         </div>

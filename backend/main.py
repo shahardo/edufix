@@ -32,6 +32,7 @@ app = FastAPI(
 
     - **Student**: Access to practice questions, personal progress, and content viewing
     - **Teacher**: Full content management, class analytics, and student insights
+    - **Manager**: Platform-wide management dashboard with overview of all teachers, students, classes, and lessons
 
     ## Response Codes
 
@@ -74,7 +75,7 @@ def read_root():
     return {"message": "Welcome to EduFix API"}
 
 # Include routers with comprehensive tags and descriptions
-from routers import auth, content, practice, analytics
+from routers import auth, content, practice, analytics, management
 
 app.include_router(
     auth.router,
@@ -117,6 +118,17 @@ app.include_router(
         401: {"description": "Unauthorized - Authentication required"},
         403: {"description": "Forbidden - Only teachers can access analytics"},
         404: {"description": "Not Found - Student or class not found"}
+    }
+)
+
+app.include_router(
+    management.router,
+    prefix="/api/management",
+    tags=["Management Dashboard"],
+    responses={
+        401: {"description": "Unauthorized - Authentication required"},
+        403: {"description": "Forbidden - Only managers can access management dashboard"},
+        404: {"description": "Not Found - Resource doesn't exist"}
     }
 )
 

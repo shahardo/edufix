@@ -25,7 +25,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     full_name: str
-    role: str  # "student" or "teacher"
+    role: str  # "student", "teacher", or "manager"
     language: Optional[str] = "en"
 
 class UserUpdate(BaseModel):

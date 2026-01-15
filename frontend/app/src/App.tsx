@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Login from './components/Login';
 import StudentDashboard from './components/StudentDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
+import ManagerDashboard from './components/ManagerDashboard';
 import ContentManagement from './components/ContentManagement';
 import Practice from './components/Practice';
 import './App.css';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/manager" element={<ManagerDashboard />} />
             <Route path="/content" element={<ContentManagement />} />
             <Route path="/practice" element={<Practice />} />
           </Routes>
