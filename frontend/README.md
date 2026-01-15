@@ -1,6 +1,11 @@
-# EduFix Frontend Mock Screens
+# EduFix Frontend
 
-This directory contains interactive HTML/CSS/JavaScript mock screens demonstrating the EduFix platform's user interface and user experience flows.
+The EduFix frontend consists of two implementations:
+
+1. **Static HTML Mock Screens** - Interactive prototypes for design validation and UX testing
+2. **React Application** - Full-featured web application built with modern React and TypeScript
+
+This directory contains both implementations, providing a complete frontend solution for the EduFix educational platform.
 
 ## 📱 Available Screens
 
@@ -75,12 +80,112 @@ Each screen implements the exact specifications from the PRD mockups:
 - **Spacing**: Consistent 4px-8px-16px-24px grid
 - **Accessibility**: WCAG AA compliant colors, keyboard navigation ready
 
+## ⚛️ React Application (`frontend/app/`)
+
+The React application provides a modern, interactive frontend for the EduFix platform with full TypeScript support and component-based architecture.
+
+### 🏗️ Architecture
+
+```
+frontend/app/
+├── src/
+│   ├── components/           # React components
+│   │   ├── Login.tsx         # User authentication
+│   │   ├── StudentDashboard.tsx
+│   │   ├── TeacherDashboard.tsx
+│   │   ├── ContentManagement.tsx
+│   │   └── Practice.tsx      # Practice sessions
+│   ├── App.tsx              # Main application component
+│   ├── main.tsx             # Application entry point
+│   ├── App.css              # Application styles
+│   └── style.css            # Global styles
+├── public/                  # Static assets
+├── package.json             # Dependencies and scripts
+├── tsconfig.json           # TypeScript configuration
+├── tailwind.config.js      # Tailwind CSS configuration
+└── vite.config.js          # Vite build configuration
+```
+
+### 🛠️ Tech Stack
+
+- **React 19** - Modern React with hooks and concurrent features
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router DOM** - Client-side routing
+- **TanStack Query** - Data fetching and caching
+- **Axios** - HTTP client for API calls
+- **Heroicons** - Modern icon library
+- **React Hook Form** - Form handling
+
+### 🚀 Running the React Application
+
+#### Development Server
+```bash
+cd frontend/app
+npm install
+npx vite
+```
+The development server will start on `http://localhost:5173` (or next available port).
+
+#### Production Build
+```bash
+cd frontend/app
+npm run build
+npm run preview
+```
+
+### 📦 Available Scripts
+
+- `npm run dev` - Start development server (via Vite)
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build locally
+
+### 🔧 Development
+
+#### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+#### Key Components
+- **Login**: User authentication interface
+- **StudentDashboard**: Student home screen with lessons and progress
+- **TeacherDashboard**: Teacher analytics and class management
+- **ContentManagement**: Content creation and editing tools
+- **Practice**: Interactive practice sessions with AI assistance
+
+### 🔌 API Integration
+
+The React app is designed to integrate with the EduFix backend API:
+
+- **Authentication**: Login/logout via `/auth` endpoints
+- **Content**: Lesson and practice content via `/content` endpoints
+- **Analytics**: Dashboard data via `/analytics` endpoints
+- **Practice**: Interactive sessions via `/practice` endpoints
+
+### 🎨 Styling
+
+- **Tailwind CSS** for responsive, utility-first styling
+- **PostCSS** for CSS processing and optimization
+- **Consistent design system** matching the mock screens
+- **Dark/light theme support** (planned)
+
 ## 🔄 Next Steps
 
-These mock screens serve as:
+### Mock Screens
+These static HTML files serve as:
 - **Design validation** for the PRD specifications
 - **User experience testing** foundation
 - **Frontend development** blueprint
 - **Stakeholder demonstrations**
 
-For the full React application, these screens provide the exact component structure and interaction patterns to implement.
+### React Application
+Current status:
+- ✅ Basic project structure and components
+- ✅ TypeScript configuration
+- ✅ Development server running
+- 🚧 Component implementation in progress
+- 📋 API integration needed
+- 🎨 UI/UX refinements required
+
+The mock screens provide the exact component structure and interaction patterns that the React application should implement.
