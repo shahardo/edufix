@@ -12,6 +12,7 @@ type Role = 'student' | 'teacher';
 
 const Login = () => {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const navigate = useNavigate();
 
   const {
@@ -21,8 +22,10 @@ const Login = () => {
   } = useForm<LoginForm>();
 
   const onSubmit = async (data: LoginForm) => {
+    setErrorMessage('');
+
     if (!selectedRole) {
-      alert('Please select whether you are a Student or Teacher.');
+      setErrorMessage('Please select whether you are a Student or Teacher.');
       return;
     }
 
@@ -42,12 +45,13 @@ const Login = () => {
         navigate('/teacher');
       }
     } else {
-      alert('Invalid credentials. Please try again.');
+      setErrorMessage('Invalid credentials. Please try again.');
     }
   };
 
   const selectRole = (role: Role) => {
     setSelectedRole(role);
+    setErrorMessage(''); // Clear any error when role is selected
   };
 
   return (
@@ -176,6 +180,20 @@ const Login = () => {
               </button>
             </div>
           </form>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <i className="fas fa-exclamation-circle text-red-400"></i>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{errorMessage}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
