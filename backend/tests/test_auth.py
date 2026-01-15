@@ -154,6 +154,218 @@ def test_get_current_user():
     data = response.json()
     assert data["username"] == "testuser5"
 
+def test_update_user_profile():
+    """Test updating user profile."""
+    # Register and login
+    user_data = {
+        "username": "testuser6",
+        "email": "test6@example.com",
+        "password": "testpass123",
+        "full_name": "Test User 6",
+        "role": "student",
+        "language": "en"
+    }
+    client.post("/auth/register", json=user_data)
+
+    response = client.post("/auth/token", data={
+        "username": "testuser6",
+        "password": "testpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Update profile - only update fields that should be updatable
+    update_data = {
+        "username": "updateduser",
+        "email": "updated@example.com",
+        "full_name": "Updated User",
+        "language": "he"
+    }
+    response = client.put("/auth/users/me", json=update_data, headers={"Authorization": f"Bearer {token}"})
+    # Check if it's a validation error (422) or success (200)
+    if response.status_code == 422:
+        # If validation fails, check that it's not a role field issue
+        print(f"Validation error: {response.json()}")
+        # Skip password field which might be causing issues
+        update_data_no_pass = {
+            "username": "updateduser",
+            "email": "updated@example.com",
+            "full_name": "Updated User",
+            "language": "he"
+        }
+        response = client.put("/auth/users/me", json=update_data_no_pass, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "updateduser"
+    assert data["email"] == "updated@example.com"
+    assert data["full_name"] == "Updated User"
+    assert data["language"] == "he"
+
+def test_update_user_profile_duplicate_username():
+    """Test updating user profile with existing username."""
+    # Register two users
+    user_data1 = {
+        "username": "user1",
+        "email": "user1@example.com",
+        "password": "testpass123",
+        "full_name": "User One",
+        "role": "student"
+    }
+    user_data2 = {
+        "username": "user2",
+        "email": "user2@example.com",
+        "password": "testpass123",
+        "full_name": "User Two",
+        "role": "student"
+    }
+    client.post("/auth/register", json=user_data1)
+    client.post("/auth/register", json=user_data2)
+
+    # Login as user2
+    response = client.post("/auth/token", data={
+        "username": "user2",
+        "password": "testpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Try to update to existing username
+    update_data = {
+        "username": "user1",  # This already exists
+        "email": "user2@example.com",
+        "full_name": "User Two Updated"
+    }
+    response = client.put("/auth/users/me", json=update_data, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Username already taken" in response.json()["detail"]
+
+def test_update_user_profile_duplicate_email():
+    """Test updating user profile with existing email."""
+    # Register two users
+    user_data1 = {
+        "username": "user3",
+        "email": "email1@example.com",
+        "password": "testpass123",
+        "full_name": "User Three",
+        "role": "student"
+    }
+    user_data2 = {
+        "username": "user4",
+        "email": "email2@example.com",
+        "password": "testpass123",
+        "full_name": "User Four",
+        "role": "student"
+    }
+    client.post("/auth/register", json=user_data1)
+    client.post("/auth/register", json=user_data2)
+
+    # Login as user4
+    response = client.post("/auth/token", data={
+        "username": "user4",
+        "password": "testpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Try to update to existing email
+    update_data = {
+        "username": "user4",
+        "email": "email1@example.com",  # This already exists
+        "full_name": "User Four Updated"
+    }
+    response = client.put("/auth/users/me", json=update_data, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Email already registered" in response.json()["detail"]
+
+def test_update_password():
+    """Test updating user password."""
+    # Register and login
+    user_data = {
+        "username": "testuser7",
+        "email": "test7@example.com",
+        "password": "oldpass123",
+        "full_name": "Test User 7",
+        "role": "student"
+    }
+    client.post("/auth/register", json=user_data)
+
+    response = client.post("/auth/token", data={
+        "username": "testuser7",
+        "password": "oldpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Update password
+    password_data = {
+        "old_password": "oldpass123",
+        "new_password": "newpass123"
+    }
+    response = client.put("/auth/users/me/password", json=password_data, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert "Password updated successfully" in response.json()["message"]
+
+    # Try to login with old password (should fail)
+    response = client.post("/auth/token", data={
+        "username": "testuser7",
+        "password": "oldpass123"
+    })
+    assert response.status_code == 401
+
+    # Login with new password (should succeed)
+    response = client.post("/auth/token", data={
+        "username": "testuser7",
+        "password": "newpass123"
+    })
+    assert response.status_code == 200
+
+def test_update_password_wrong_old_password():
+    """Test updating password with wrong old password."""
+    # Register and login
+    user_data = {
+        "username": "testuser8",
+        "email": "test8@example.com",
+        "password": "oldpass123",
+        "full_name": "Test User 8",
+        "role": "student"
+    }
+    client.post("/auth/register", json=user_data)
+
+    response = client.post("/auth/token", data={
+        "username": "testuser8",
+        "password": "oldpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Try to update with wrong old password
+    password_data = {
+        "old_password": "wrongpass",
+        "new_password": "newpass123"
+    }
+    response = client.put("/auth/users/me/password", json=password_data, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Incorrect old password" in response.json()["detail"]
+
+def test_update_password_missing_fields():
+    """Test updating password with missing fields."""
+    # Register and login
+    user_data = {
+        "username": "testuser9",
+        "email": "test9@example.com",
+        "password": "oldpass123",
+        "full_name": "Test User 9",
+        "role": "student"
+    }
+    client.post("/auth/register", json=user_data)
+
+    response = client.post("/auth/token", data={
+        "username": "testuser9",
+        "password": "oldpass123"
+    })
+    token = response.json()["access_token"]
+
+    # Try to update with missing old password
+    password_data = {"new_password": "newpass123"}
+    response = client.put("/auth/users/me/password", json=password_data, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+    assert "Both old and new passwords required" in response.json()["detail"]
+
 @pytest.mark.skip(reason="bcrypt backend detection issue")
 def test_password_hashing():
     """Test password hashing functionality."""

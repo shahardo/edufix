@@ -20,7 +20,7 @@ This document outlines the development guidelines and best practices that Cline 
 ### Testing Commands
 ```bash
 # Backend tests
-cd backend && venv\Scripts\activate && python -m pytest tests/ -v
+cd backend && venv\Scripts\activate && python -m pytest backend/tests/ -v
 
 # Frontend tests (if applicable)
 cd frontend && npm test

@@ -28,6 +28,12 @@ class UserCreate(BaseModel):
     role: str  # "student" or "teacher"
     language: Optional[str] = "en"
 
+class UserUpdate(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    language: Optional[str] = "en"
+
 from pydantic import ConfigDict
 
 class UserResponse(BaseModel):
@@ -142,3 +148,53 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """Get current user info."""
     return current_user
+
+@router.put("/users/me", response_model=UserResponse)
+def update_user_profile(
+    user_update: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update current user's profile."""
+    # Check if username or email is already taken by another user
+    if user_update.username != current_user.username:
+        existing_user = db.query(User).filter(User.username == user_update.username).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username already taken")
+
+    if user_update.email != current_user.email:
+        existing_user = db.query(User).filter(User.email == user_update.email).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Update user fields
+    current_user.username = user_update.username
+    current_user.email = user_update.email
+    current_user.full_name = user_update.full_name
+    if user_update.language:
+        current_user.language = user_update.language
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@router.put("/users/me/password")
+def update_user_password(
+    password_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update current user's password."""
+    old_password = password_data.get("old_password")
+    new_password = password_data.get("new_password")
+
+    if not old_password or not new_password:
+        raise HTTPException(status_code=400, detail="Both old and new passwords required")
+
+    if not verify_password(old_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect old password")
+
+    current_user.hashed_password = get_password_hash(new_password)
+    db.commit()
+
+    return {"message": "Password updated successfully"}

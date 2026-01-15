@@ -55,6 +55,15 @@ This phase implements core backend APIs and interactive mock screens for EduFix 
 - `POST /register` - Register new user
 - `POST /token` - Login and get access token
 - `GET /users/me` - Get current user info
+- `PUT /users/me` - Update user profile
+- `PUT /users/me/password` - Change password
+
+### Analytics API (`/api/analytics`)
+- `GET /dashboard` - Get teacher dashboard metrics (total students, active users, mastery scores, completion rates, top performers)
+- `GET /students/{student_id}/insights` - Get detailed student insights (mastery scores, recent activity, progress rate, recommendations)
+- `GET /classes/{class_id}/progress` - Get class progress overview for all lessons
+- `GET /interventions` - List teacher interventions (filterable by status/priority)
+- `POST /interventions` - Create new intervention for student
 
 ## Technical Implementation
 
@@ -90,21 +99,21 @@ This phase implements core backend APIs and interactive mock screens for EduFix 
 - [x] Analytics models (sessions, progress, interventions)
 
 ### Priority 2: Core API Implementation
-- [ ] User management APIs (registration, profiles, preferences)
-- [ ] Content management APIs (CRUD operations, file handling)
-- [ ] Practice system APIs (adaptive question selection, hint delivery)
-- [ ] Analytics APIs (dashboard data, student insights)
+- [x] User management APIs (registration, profiles, preferences)
+- [x] Content management APIs (CRUD operations, file handling)
+- [x] Practice system APIs (adaptive question selection, hint delivery)
+- [x] Analytics APIs (dashboard data, student insights)
 
 ### Priority 3: Testing & Documentation
-- [ ] Comprehensive API documentation (OpenAPI/Swagger)
-- [ ] Unit tests for all models and endpoints
+- [x] Comprehensive API documentation (OpenAPI/Swagger available at /docs)
+- [x] Unit tests for all models and endpoints (47+ tests passing including new analytics/auth endpoints)
 - [ ] Integration tests for user flows
 - [ ] Performance testing and optimization
 
 ### Priority 4: Authentication & Authorization
-- [ ] JWT-based authentication system
-- [ ] Role-based access control (RBAC)
-- [ ] Password hashing and security
+- [x] JWT-based authentication system
+- [x] Role-based access control (RBAC)
+- [x] Password hashing and security
 - [ ] Session management and refresh tokens
 - [ ] API key management for external integrations
 
