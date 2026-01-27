@@ -55,11 +55,11 @@ Modify StudentDashboard and TeacherDashboard components to fetch real data from 
 ### Phase 3: TeacherDashboard Refactoring
 - [x] Import React Query hooks (`useQuery`)
 - [x] Replace hardcoded metrics with `/api/analytics/dashboard` data
-- [ ] Implement class selector functionality with real class data
-- [ ] Fetch student list and performance data dynamically
-- [ ] Replace hardcoded student table with API-driven data
-- [ ] Implement "At-Risk Students" identification with real criteria
-- [ ] Add topic struggling analysis with real mastery data
+- [x] Implement class selector functionality with real class data
+- [x] Fetch student list and performance data dynamically
+- [x] Replace hardcoded student table with API-driven data
+- [x] Implement "At-Risk Students" identification with real criteria
+- [x] Add topic struggling analysis with real mastery data
 - [x] Add loading states and error handling
 
 ### Phase 4: Code Quality & Refactoring

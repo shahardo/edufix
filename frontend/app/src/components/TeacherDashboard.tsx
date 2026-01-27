@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 // API function to fetch teacher dashboard data
@@ -23,6 +24,46 @@ const TeacherDashboard = () => {
     queryKey: ['teacher-dashboard'],
     queryFn: fetchTeacherDashboard,
   });
+
+  // State for selected class
+  const [selectedClassId, setSelectedClassId] = React.useState<number | null>(null);
+
+  // Fetch class details when a class is selected
+  const { data: classDetails } = useQuery({
+    queryKey: ['teacher-class-details', selectedClassId],
+    queryFn: () => fetchTeacherClassDetails(selectedClassId!),
+    enabled: selectedClassId !== null,
+  });
+
+  // Helper function to fetch class details
+  async function fetchTeacherClassDetails(classId: number) {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`http://localhost:8000/api/analytics/teacher/classes/${classId}/details`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch class details');
+    }
+
+    return response.json();
+  }
+
+  // Get teacher's classes from dashboard data (assuming we can derive this)
+  // For now, we'll simulate with some default classes, but this should come from an API
+  const teacherClasses = React.useMemo(() => {
+    if (!dashboardData) return [];
+    // In a real implementation, we'd have an API to get teacher's classes
+    // For now, return some mock data based on the dashboard metrics
+    return [
+      { id: 1, name: 'Chemistry 10B', studentCount: dashboardData.total_students || 26 },
+      { id: 2, name: 'Physics 10A', studentCount: 24 },
+      { id: 3, name: 'Biology 10C', studentCount: 22 },
+    ];
+  }, [dashboardData]);
 
   // Loading state
   if (isLoading) {
@@ -80,12 +121,21 @@ const TeacherDashboard = () => {
         <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center space-x-4">
-              <select className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Chemistry 10B (26 students)</option>
-                <option>Physics 10A (24 students)</option>
-                <option>Biology 10C (22 students)</option>
+              <select
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedClassId || ''}
+                onChange={(e) => setSelectedClassId(e.target.value ? parseInt(e.target.value) : null)}
+              >
+                <option value="">All Classes</option>
+                {teacherClasses.map((classItem) => (
+                  <option key={classItem.id} value={classItem.id}>
+                    {classItem.name} ({classItem.studentCount} students)
+                  </option>
+                ))}
               </select>
-              <span className="text-sm text-gray-600">Updated 5 min ago</span>
+              <span className="text-sm text-gray-600">
+                {selectedClassId ? `Class selected` : 'All classes'}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
@@ -181,58 +231,45 @@ const TeacherDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
               <h3 className="text-lg font-medium text-gray-900">Top Struggling Topics</h3>
-              <p className="text-sm text-gray-600 mt-1">Topics where students need the most help</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedClassId ? `Topics where students in ${classDetails?.class_name} need the most help` : 'Topics where students need the most help'}
+              </p>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                    <div>
-                      <p className="font-medium text-gray-900">Redox Reactions</p>
-                      <p className="text-sm text-gray-600">8 students struggling (31%)</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-red-600">52%</p>
-                    <p className="text-xs text-gray-500">avg mastery</p>
-                  </div>
-                </div>
+                {classDetails?.struggling_topics && classDetails.struggling_topics.length > 0 ? classDetails.struggling_topics.map((topic: any, index: number) => {
+                  const colors = ['bg-red-50 border-red-200 text-red-600', 'bg-orange-50 border-orange-200 text-orange-600', 'bg-yellow-50 border-yellow-200 text-yellow-600'];
+                  const colorClass = colors[index % colors.length];
 
-                <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
-                    <div>
-                      <p className="font-medium text-gray-900">Limiting Reactants</p>
-                      <p className="text-sm text-gray-600">6 students struggling (23%)</p>
+                  return (
+                    <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${colorClass.split(' ')[0]} border ${colorClass.split(' ')[1]}`}>
+                      <div className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-3 ${colorClass.split(' ')[2].replace('text-', 'bg-')}`}></div>
+                        <div>
+                          <p className="font-medium text-gray-900">{topic.topic}</p>
+                          <p className="text-sm text-gray-600">{topic.struggling_students} students struggling ({Math.round((topic.struggling_students / topic.total_students) * 100)}%)</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-lg font-bold ${colorClass.split(' ')[2]}`}>{topic.average_mastery}%</p>
+                        <p className="text-xs text-gray-500">avg mastery</p>
+                      </div>
                     </div>
+                  );
+                }) : (
+                  <div className="text-center text-gray-500 py-4">
+                    {selectedClassId ? 'No struggling topics found for this class' : 'Select a class to view struggling topics'}
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-orange-600">58%</p>
-                    <p className="text-xs text-gray-500">avg mastery</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                    <div>
-                      <p className="font-medium text-gray-900">Oxidation States</p>
-                      <p className="text-sm text-gray-600">5 students struggling (19%)</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-yellow-600">61%</p>
-                    <p className="text-xs text-gray-500">avg mastery</p>
-                  </div>
-                </div>
+                )}
               </div>
 
-              <div className="mt-4">
-                <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                  Create Remediation Plan
-                </button>
-              </div>
+              {classDetails?.struggling_topics && classDetails.struggling_topics.length > 0 && (
+                <div className="mt-4">
+                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Create Remediation Plan
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -240,7 +277,9 @@ const TeacherDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="p-6 border-b">
               <h3 className="text-lg font-medium text-gray-900">Class Mastery Distribution</h3>
-              <p className="text-sm text-gray-600 mt-1">How students are performing across all topics</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedClassId ? `How students in ${classDetails?.class_name} are performing` : 'How students are performing across all topics'}
+              </p>
             </div>
             <div className="p-6">
               <div className="relative h-64 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -251,22 +290,45 @@ const TeacherDashboard = () => {
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  <span>Expert (80%+): 8 students</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                  <span>Proficient: 12 students</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                  <span>Developing: 7 students</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                  <span>Beginning: 2 students</span>
-                </div>
+                {classDetails?.mastery_distribution ? (
+                  <>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                      <span>Expert (80%+): {classDetails.mastery_distribution.expert} students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                      <span>Proficient: {classDetails.mastery_distribution.advanced} students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                      <span>Developing: {classDetails.mastery_distribution.intermediate} students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                      <span>Beginning: {classDetails.mastery_distribution.beginner} students</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                      <span>Expert (80%+): -- students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                      <span>Proficient: -- students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                      <span>Developing: -- students</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                      <span>Beginning: -- students</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -312,114 +374,82 @@ const TeacherDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-                          <span className="text-white font-medium">AC</span>
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">Alice Chen</div>
-                        <div className="text-sm text-gray-500">alice@example.com</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2 mr-3 max-w-24">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '95%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">95%</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      ✓ Active
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className="text-green-600">✓ Done</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-3">View Profile</button>
-                    <button className="text-green-600 hover:text-green-900">Send Message</button>
-                  </td>
-                </tr>
+                {classDetails?.students && classDetails.students.length > 0 ? classDetails.students.map((student: any) => {
+                  // Get initials for avatar
+                  const initials = student.name.split(' ').map((n: string) => n[0]).join('').toUpperCase();
 
-                <tr className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
-                          <span className="text-white font-medium">BR</span>
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">Bob Rodriguez</div>
-                        <div className="text-sm text-gray-500">bob@example.com</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2 mr-3 max-w-24">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '78%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">78%</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      ✓ Active
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className="text-green-600">✓ Done</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-3">View Profile</button>
-                    <button className="text-green-600 hover:text-green-900">Send Message</button>
-                  </td>
-                </tr>
+                  // Determine status color and text
+                  let statusColor = 'bg-green-100 text-green-800';
+                  let statusText = 'Active';
+                  if (student.status === 'At Risk') {
+                    statusColor = 'bg-red-100 text-red-800';
+                    statusText = '⚠ At Risk';
+                  } else if (student.status === 'Inactive') {
+                    statusColor = 'bg-gray-100 text-gray-800';
+                    statusText = 'Inactive';
+                  }
 
-                <tr className="hover:bg-gray-50 bg-red-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center">
-                          <span className="text-white font-medium">SC</span>
+                  // Determine homework status
+                  const homeworkText = student.completed_lessons > 0 ? '✓ Done' : '⚠ Late';
+                  const homeworkColor = student.completed_lessons > 0 ? 'text-green-600' : 'text-red-600';
+
+                  return (
+                    <tr key={student.id} className={`hover:bg-gray-50 ${student.status === 'At Risk' ? 'bg-red-50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                              student.status === 'At Risk' ? 'bg-red-500' :
+                              student.status === 'Inactive' ? 'bg-gray-500' : 'bg-blue-500'
+                            }`}>
+                              <span className="text-white font-medium">{initials}</span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                            <div className="text-sm text-gray-500">{student.email}</div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">Sarah Chen</div>
-                        <div className="text-sm text-gray-500">sarah@example.com</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2 mr-3 max-w-24">
-                        <div className="bg-red-500 h-2 rounded-full" style={{ width: '50%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">50%</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                      ⚠ At Risk
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className="text-red-600">⚠ Late</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-3">View Profile</button>
-                    <button className="text-red-600 hover:text-red-900 mr-3">Create Practice</button>
-                    <button className="text-green-600 hover:text-green-900">Send Message</button>
-                  </td>
-                </tr>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-full bg-gray-200 rounded-full h-2 mr-3 max-w-24">
+                            <div
+                              className={`h-2 rounded-full ${
+                                student.mastery_score >= 80 ? 'bg-green-500' :
+                                student.mastery_score >= 60 ? 'bg-blue-500' :
+                                student.mastery_score >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${student.mastery_score}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{student.mastery_score}%</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}`}>
+                          {statusText}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className={homeworkColor}>{homeworkText}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">View Profile</button>
+                        {student.status === 'At Risk' && (
+                          <button className="text-red-600 hover:text-red-900 mr-3">Create Practice</button>
+                        )}
+                        <button className="text-green-600 hover:text-green-900">Send Message</button>
+                      </td>
+                    </tr>
+                  );
+                }) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      {selectedClassId ? 'No students found in this class' : 'Select a class to view students'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
