@@ -462,5 +462,289 @@ def test_dashboard_empty_teacher():
     assert data["completion_rate"] == 0.0
     assert data["top_performing_students"] == []
 
+def test_student_dashboard(student_token, setup_test_data):
+    """Test getting student dashboard data."""
+    response = client.get("/api/analytics/student/dashboard", headers={"Authorization": f"Bearer {student_token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    # Check required fields are present
+    assert "active_classes_count" in data
+    assert "completed_tasks_count" in data
+    assert "average_grade" in data
+    assert "current_streak" in data
+    assert "total_points" in data
+    assert "classes" in data
+    assert "recent_activity" in data
+    assert "upcoming_assignments" in data
+
+    # Check data types
+    assert isinstance(data["active_classes_count"], int)
+    assert isinstance(data["completed_tasks_count"], int)
+    assert isinstance(data["average_grade"], (int, float))
+    assert isinstance(data["current_streak"], int)
+    assert isinstance(data["total_points"], int)
+    assert isinstance(data["classes"], list)
+    assert isinstance(data["recent_activity"], list)
+    assert isinstance(data["upcoming_assignments"], list)
+
+    # Check that we have at least one class (from setup_test_data)
+    assert data["active_classes_count"] >= 1
+    assert len(data["classes"]) >= 1
+
+    # Check class structure
+    if data["classes"]:
+        class_item = data["classes"][0]
+        assert "id" in class_item
+        assert "name" in class_item
+        assert "subject" in class_item
+        assert "teacher_name" in class_item
+        assert "completed_lessons" in class_item
+        assert "total_lessons" in class_item
+        assert "next_lesson" in class_item
+        assert "grade" in class_item
+
+def test_student_dashboard_unauthorized_teacher(teacher_token):
+    """Test that teachers cannot access student dashboard."""
+    response = client.get("/api/analytics/student/dashboard", headers={"Authorization": f"Bearer {teacher_token}"})
+    assert response.status_code == 403
+    assert "Only students can access their dashboard" in response.json()["detail"]
+
+def test_student_dashboard_no_class():
+    """Test student dashboard for student with no class assigned."""
+    # Register student with no class
+    student_data = {
+        "username": "noclass_student",
+        "email": "noclass@example.com",
+        "password": "studpass123",
+        "full_name": "No Class Student",
+        "role": "student"
+    }
+    client.post("/auth/register", json=student_data)
+
+    response = client.post("/auth/token", data={
+        "username": "noclass_student",
+        "password": "studpass123"
+    })
+    token = response.json()["access_token"]
+
+    response = client.get("/api/analytics/student/dashboard", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should return empty/default data
+    assert data["active_classes_count"] == 0
+    assert data["completed_tasks_count"] == 0
+    assert data["average_grade"] == 0.0
+    assert data["current_streak"] == 0
+    assert data["total_points"] == 0
+    assert data["classes"] == []
+    assert data["recent_activity"] == []
+    assert data["upcoming_assignments"] == []
+
+def test_teacher_class_details(teacher_token, setup_test_data):
+    """Test getting teacher class details."""
+    class_id = setup_test_data["class_id"]
+
+    response = client.get(f"/api/analytics/teacher/classes/{class_id}/details", headers={"Authorization": f"Bearer {teacher_token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    # Check required fields
+    assert "class_id" in data
+    assert "class_name" in data
+    assert "subject" in data
+    assert "total_students" in data
+    assert "students" in data
+    assert "struggling_topics" in data
+    assert "mastery_distribution" in data
+
+    # Check data types
+    assert isinstance(data["class_id"], int)
+    assert isinstance(data["class_name"], str)
+    assert isinstance(data["subject"], str)
+    assert isinstance(data["total_students"], int)
+    assert isinstance(data["students"], list)
+    assert isinstance(data["struggling_topics"], list)
+    assert isinstance(data["mastery_distribution"], dict)
+
+    # Check class info matches setup
+    assert data["class_id"] == class_id
+    assert data["class_name"] == "Test Class"
+    assert data["subject"] == "Mathematics"
+    assert data["total_students"] == 5  # We created 5 students
+
+    # Check students array
+    assert len(data["students"]) == 5
+    for student in data["students"]:
+        assert "id" in student
+        assert "name" in student
+        assert "email" in student
+        assert "mastery_score" in student
+        assert "completed_lessons" in student
+        assert "status" in student
+        assert "recent_activity" in student
+        assert isinstance(student["mastery_score"], (int, float))
+        assert isinstance(student["completed_lessons"], int)
+        assert student["status"] in ["Excellent", "Good", "Needs Improvement", "At Risk", "Inactive"]
+
+    # Check mastery distribution
+    mastery_dist = data["mastery_distribution"]
+    assert "expert" in mastery_dist
+    assert "advanced" in mastery_dist
+    assert "intermediate" in mastery_dist
+    assert "beginner" in mastery_dist
+
+    # Sum should equal total students
+    total_from_dist = sum(mastery_dist.values())
+    assert total_from_dist == data["total_students"]
+
+def test_teacher_class_details_unauthorized_student(student_token, setup_test_data):
+    """Test that students cannot access class details."""
+    class_id = setup_test_data["class_id"]
+
+    response = client.get(f"/api/analytics/teacher/classes/{class_id}/details", headers={"Authorization": f"Bearer {student_token}"})
+    assert response.status_code == 403
+    assert "Only teachers can access class details" in response.json()["detail"]
+
+def test_teacher_class_details_wrong_teacher(teacher_token, setup_test_data):
+    """Test accessing class details for class not owned by teacher."""
+    # Create another teacher
+    other_teacher_data = {
+        "username": "other_teacher_details",
+        "email": "other_details@example.com",
+        "password": "teachpass123",
+        "full_name": "Other Teacher Details",
+        "role": "teacher"
+    }
+    client.post("/auth/register", json=other_teacher_data)
+
+    response = client.post("/auth/token", data={
+        "username": "other_teacher_details",
+        "password": "teachpass123"
+    })
+    other_token = response.json()["access_token"]
+
+    # Try to access class owned by teacher1
+    class_id = setup_test_data["class_id"]  # This belongs to teacher1
+    response = client.get(f"/api/analytics/teacher/classes/{class_id}/details", headers={"Authorization": f"Bearer {other_token}"})
+    assert response.status_code == 404  # Should return 404 for not found/access denied
+
+def test_teacher_class_details_nonexistent_class(teacher_token):
+    """Test accessing details for non-existent class."""
+    response = client.get("/api/analytics/teacher/classes/99999/details", headers={"Authorization": f"Bearer {teacher_token}"})
+    assert response.status_code == 404
+    assert "Class not found" in response.json()["detail"]
+
+def test_teacher_class_details_struggling_topics(teacher_token, setup_test_data):
+    """Test struggling topics calculation in class details."""
+    # First, create some low-performing mastery data to trigger struggling topics
+    db = TestingSessionLocal()
+    try:
+        students = db.query(User).filter(User.class_id == setup_test_data["class_id"]).all()
+
+        # Create low mastery scores for a topic
+        for student in students[:3]:  # First 3 students get low scores
+            low_mastery = Mastery(
+                user_id=student.id,
+                topic="Mathematics_hard",  # Different topic to test filtering
+                score=35.0  # Below 60% threshold
+            )
+            db.add(low_mastery)
+
+        db.commit()
+    finally:
+        db.close()
+
+    class_id = setup_test_data["class_id"]
+    response = client.get(f"/api/analytics/teacher/classes/{class_id}/details", headers={"Authorization": f"Bearer {teacher_token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should have struggling topics now
+    assert len(data["struggling_topics"]) > 0
+
+    # Check struggling topic structure
+    for topic in data["struggling_topics"]:
+        assert "topic" in topic
+        assert "average_mastery" in topic
+        assert "struggling_students" in topic
+        assert "total_students" in topic
+        assert topic["average_mastery"] < 60  # Should be below threshold
+
+def test_student_dashboard_with_recent_activity(student_token, setup_test_data):
+    """Test student dashboard includes recent activity."""
+    # Add some recent activity for the student
+    db = TestingSessionLocal()
+    try:
+        # Get the student
+        student = db.query(User).filter(User.username == "student1").first()
+
+        # Create a recent completed lesson
+        lesson = db.query(Lesson).first()
+        recent_progress = Progress(
+            user_id=student.id,
+            lesson_id=lesson.id,
+            completion_percentage=100.0,
+            status="completed",
+            last_accessed=datetime.utcnow() - timedelta(minutes=30)
+        )
+        db.add(recent_progress)
+
+        # Create a recent practice session
+        recent_session = UserSession(
+            user_id=student.id,
+            session_type="practice",
+            start_time=datetime.utcnow() - timedelta(hours=2),
+            end_time=datetime.utcnow() - timedelta(hours=2) + timedelta(minutes=30),
+            duration=30.0,
+            questions_attempted=10,
+            correct_answers=8
+        )
+        db.add(recent_session)
+
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.get("/api/analytics/student/dashboard", headers={"Authorization": f"Bearer {student_token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should have recent activity
+    assert len(data["recent_activity"]) > 0
+
+    # Check activity structure
+    for activity in data["recent_activity"]:
+        assert "type" in activity
+        assert "description" in activity
+        assert "timestamp" in activity
+        assert activity["type"] in ["practice", "lesson_completion"]
+
+def test_teacher_class_details_mastery_distribution(teacher_token, setup_test_data):
+    """Test mastery distribution calculation."""
+    class_id = setup_test_data["class_id"]
+
+    response = client.get(f"/api/analytics/teacher/classes/{class_id}/details", headers={"Authorization": f"Bearer {teacher_token}"})
+    assert response.status_code == 200
+    data = response.json()
+
+    mastery_dist = data["mastery_distribution"]
+
+    # Should have all required categories
+    assert "expert" in mastery_dist
+    assert "advanced" in mastery_dist
+    assert "intermediate" in mastery_dist
+    assert "beginner" in mastery_dist
+
+    # Each category should have valid counts
+    for category, count in mastery_dist.items():
+        assert isinstance(count, int)
+        assert count >= 0
+
+    # Total should match student count
+    total_students = sum(mastery_dist.values())
+    assert total_students == data["total_students"]
+
 if __name__ == "__main__":
     pytest.main([__file__])
