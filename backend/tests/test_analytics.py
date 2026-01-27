@@ -33,7 +33,7 @@ app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 
 # Test database
-TEST_DATABASE_URL = "sqlite:///./test_analytics.db"
+TEST_DATABASE_URL = "sqlite:///../data/test_analytics.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -16,8 +16,8 @@ EduFix is an adaptive classroom learning platform designed to reduce learning ga
 ## Architecture
 
 - **Backend**: Python FastAPI with SQLAlchemy 2.0 ORM, JWT authentication
-- **Database**: PostgreSQL with Alembic migrations
-- **Frontend**: Vanilla HTML/CSS/JS (Phase 1), React planned (Phase 2+)
+- **Database**: SQLite (development) / PostgreSQL (production) with Alembic migrations
+- **Frontend**: React with TypeScript (Phase 1B), Vanilla HTML/CSS/JS mockups (Phase 1)
 - **AI Integration**: OpenAI GPT for Q&A and content improvement
 - **File Storage**: Local filesystem with cloud storage planned
 
@@ -25,37 +25,51 @@ EduFix is an adaptive classroom learning platform designed to reduce learning ga
 
 ### Prerequisites
 - Python 3.12+
-- PostgreSQL 13+
+- Node.js 18+
 - Git
 
-### Backend Setup
+### 1. Database Setup
 ```bash
-git clone https://github.com/shahardo/edufix.git
-cd edufix/backend
+# Install backend dependencies first (alembic is included)
+cd backend
+pip install -r requirements.txt
+
+# Initialize and run database migrations
+cd ..  # Back to project root
+alembic upgrade head
+
+# (Optional) Load demo data
+cd backend
+python demo_data.py
+```
+
+### 2. Backend Setup
+```bash
+cd backend
 
 # Create virtual environment
 python -m venv venv
 venv\Scripts\activate  # Windows
 # source venv/bin/activate  # Linux/Mac
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Set up database
-createdb edufix
-alembic upgrade head
-
-# (Optional) Load demo data
-python demo_data.py
-
 # Run development server
-uvicorn main:app --reload
+python run.py
 ```
 
 **API Documentation**: http://localhost:8000/docs
 
-### Frontend Setup
-The frontend mockups are available in the `frontend/` directory. Run any HTML file directly in your browser or serve with a local server.
+### 3. Frontend Setup
+```bash
+cd frontend/app
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+The React frontend will be available at: http://localhost:5173
 
 ## 📊 Development Status
 
@@ -88,9 +102,11 @@ See `docs/devplan.md` for detailed roadmap and specifications.
 
 ```
 edufix/
+├── data/                  # Database files
+│   └── edufix.db          # SQLite database
 ├── backend/
 │   ├── main.py              # FastAPI application entry point
-│   ├── database.py          # Database configuration (PostgreSQL)
+│   ├── database.py          # Database configuration (SQLite/PostgreSQL)
 │   ├── models.py            # SQLAlchemy 2.0 models
 │   ├── demo_data.py         # Demo data generation
 │   ├── requirements.txt     # Python dependencies
@@ -161,7 +177,7 @@ pytest tests/ -v --cov=. --cov-report=html
 
 ## 📈 Performance
 
-- PostgreSQL with optimized queries
+- SQLite (development) / PostgreSQL (production) with optimized queries
 - SQLAlchemy connection pooling
 - Async file operations
 - Efficient pagination for large datasets

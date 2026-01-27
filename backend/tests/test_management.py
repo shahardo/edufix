@@ -29,7 +29,7 @@ app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(management.router, prefix="/api/management", tags=["management"])
 
 # Test database
-TEST_DATABASE_URL = "sqlite:///./test_management.db"
+TEST_DATABASE_URL = "sqlite:///../data/test_management.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -340,6 +340,58 @@ def test_management_data_with_demo_setup(manager_token):
     assert lessons[0]["class_name"] == "Demo Chemistry"
     assert lessons[0]["teacher_name"] == "Demo Teacher"
     assert lessons[0]["question_count"] == 1
+
+def test_management_endpoints_integration(manager_token):
+    """Integration test for management endpoints - verify routes are registered."""
+    # Test that management routes are registered properly
+    from routers.management import router
+
+    # Check that all expected routes exist in the management router
+    route_paths = [route.path for route in router.routes]
+
+    expected_routes = [
+        '/overview',
+        '/teachers',
+        '/students',
+        '/classes',
+        '/lessons'
+    ]
+
+    for expected_route in expected_routes:
+        assert expected_route in route_paths, f"Route {expected_route} not found in management router"
+
+    # Verify the router has the expected number of routes
+    assert len(router.routes) >= 5, f"Expected at least 5 routes, found {len(router.routes)}"
+
+def test_server_startup():
+    """Test that the server can be imported and configured properly."""
+    try:
+        from main import app
+        assert app is not None
+        assert hasattr(app, 'routes')
+
+        # Check that management router is included
+        routes = [route.path for route in app.routes]
+        management_routes = [route for route in routes if route.startswith('/api/management')]
+        assert len(management_routes) >= 5, f"Expected at least 5 management routes, found {len(management_routes)}"
+
+    except ImportError as e:
+        pytest.fail(f"Failed to import server: {e}")
+
+def test_management_router_import():
+    """Test that the management router can be imported and has correct endpoints."""
+    from routers.management import router
+
+    assert router is not None
+    assert len(router.routes) >= 5
+
+    # Check endpoint paths
+    route_paths = [route.path for route in router.routes]
+    assert '/overview' in route_paths
+    assert '/teachers' in route_paths
+    assert '/students' in route_paths
+    assert '/classes' in route_paths
+    assert '/lessons' in route_paths
 
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Database configuration for Phase 1B (using SQLite for demo, PostgreSQL in production)
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./backend/edufix.db")
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'edufix.db'))}")
 
 engine = create_engine(
     DATABASE_URL,

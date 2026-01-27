@@ -49,7 +49,7 @@ def create_demo_users(db):
         teacher = User(
             username=f"teacher{i+1}",
             email=f"teacher{i+1}@edufix.edu",
-            hashed_password=hash_password("password123"),
+            hashed_password=hash_password("pass123"),
             full_name=fake.name(),
             role="teacher",
             language=random.choice(["en", "he"])
@@ -63,7 +63,7 @@ def create_demo_users(db):
         student = User(
             username=f"student{i+1}",
             email=f"student{i+1}@edufix.edu",
-            hashed_password=hash_password("password123"),
+            hashed_password=hash_password("pass123"),
             full_name=fake.name(),
             role="student",
             language=random.choice(["en", "he"])

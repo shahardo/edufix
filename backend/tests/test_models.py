@@ -16,7 +16,7 @@ from models import (
 )
 
 # Test database
-TEST_DATABASE_URL = "sqlite:///./test_phase1b.db"
+TEST_DATABASE_URL = "sqlite:///../data/test_models.db"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
