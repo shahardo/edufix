@@ -1,4 +1,56 @@
+import { useQuery } from '@tanstack/react-query';
+
+// API function to fetch teacher dashboard data
+const fetchTeacherDashboard = async () => {
+  const token = localStorage.getItem('token');
+  const response = await fetch('http://localhost:8000/api/analytics/dashboard', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch teacher dashboard data');
+  }
+
+  return response.json();
+};
+
 const TeacherDashboard = () => {
+  // Fetch teacher dashboard data
+  const { data: dashboardData, isLoading, error } = useQuery({
+    queryKey: ['teacher-dashboard'],
+    queryFn: fetchTeacherDashboard,
+  });
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <i className="fas fa-exclamation-triangle text-4xl"></i>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600">Unable to load dashboard data. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
@@ -55,16 +107,16 @@ const TeacherDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Homework Completion</p>
-                <p className="text-3xl font-bold text-green-600">92%</p>
-                <p className="text-xs text-gray-500">24/26 students</p>
+                <p className="text-3xl font-bold text-green-600">{dashboardData?.completion_rate || 0}%</p>
+                <p className="text-xs text-gray-500">Average completion rate</p>
               </div>
               <div className="p-3 bg-green-100 rounded-full">
                 <i className="fas fa-check-circle text-green-600 text-2xl"></i>
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-green-600 font-medium">+5%</span>
-              <span className="text-gray-600 ml-2">from last week</span>
+              <span className="text-green-600 font-medium">Live data</span>
+              <span className="text-gray-600 ml-2">from all classes</span>
             </div>
           </div>
 
@@ -72,33 +124,33 @@ const TeacherDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Class Mastery</p>
-                <p className="text-3xl font-bold text-blue-600">65%</p>
-                <p className="text-xs text-gray-500">Average score</p>
+                <p className="text-3xl font-bold text-blue-600">{dashboardData?.average_mastery_score || 0}%</p>
+                <p className="text-xs text-gray-500">Average score across all students</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <i className="fas fa-chart-line text-blue-600 text-2xl"></i>
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-blue-600 font-medium">+3%</span>
-              <span className="text-gray-600 ml-2">from last week</span>
+              <span className="text-blue-600 font-medium">Real-time</span>
+              <span className="text-gray-600 ml-2">performance data</span>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">At-Risk Students</p>
-                <p className="text-3xl font-bold text-red-600">3</p>
-                <p className="text-xs text-gray-500">Need attention</p>
+                <p className="text-sm font-medium text-gray-600">Total Students</p>
+                <p className="text-3xl font-bold text-red-600">{dashboardData?.total_students || 0}</p>
+                <p className="text-xs text-gray-500">Enrolled in your classes</p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
-                <i className="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                <i className="fas fa-user-graduate text-red-600 text-2xl"></i>
               </div>
             </div>
             <div className="mt-4">
               <button className="text-sm text-red-600 hover:text-red-800 font-medium">
-                View details →
+                View student list →
               </button>
             </div>
           </div>
@@ -107,15 +159,17 @@ const TeacherDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Today</p>
-                <p className="text-3xl font-bold text-purple-600">23</p>
-                <p className="text-xs text-gray-500">Students online</p>
+                <p className="text-3xl font-bold text-purple-600">{dashboardData?.active_students_today || 0}</p>
+                <p className="text-xs text-gray-500">Students online today</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
                 <i className="fas fa-users text-purple-600 text-2xl"></i>
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-purple-600 font-medium">89%</span>
+              <span className="text-purple-600 font-medium">
+                {dashboardData?.total_students ? Math.round((dashboardData.active_students_today / dashboardData.total_students) * 100) : 0}%
+              </span>
               <span className="text-gray-600 ml-2">attendance rate</span>
             </div>
           </div>

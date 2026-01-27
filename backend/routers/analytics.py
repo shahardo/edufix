@@ -60,6 +60,15 @@ class StudentDashboardData(BaseModel):
     recent_activity: List[Dict[str, Any]]
     upcoming_assignments: List[Dict[str, Any]]
 
+class TeacherClassDetails(BaseModel):
+    class_id: int
+    class_name: str
+    subject: str
+    total_students: int
+    students: List[Dict[str, Any]]
+    struggling_topics: List[Dict[str, Any]]
+    mastery_distribution: Dict[str, int]
+
 # Analytics endpoints
 @router.get(
     "/dashboard",
@@ -546,3 +555,147 @@ def create_intervention(
     db.refresh(intervention)
 
     return {"message": "Intervention created successfully", "intervention_id": intervention.id}
+
+@router.get(
+    "/teacher/classes/{class_id}/details",
+    response_model=TeacherClassDetails,
+    summary="Get Teacher Class Details",
+    description="""Get detailed information about a specific class including:
+
+    - **Class Information**: Name, subject, total students
+    - **Students**: List of all students with performance data
+    - **Struggling Topics**: Topics where students need the most help
+    - **Mastery Distribution**: Breakdown of student performance levels
+
+    **Note**: Only teachers can access details for their own classes.
+    """,
+    responses={
+        200: {"description": "Class details retrieved successfully"},
+        403: {"description": "Access denied - Class not owned by teacher"},
+        404: {"description": "Class not found"}
+    }
+)
+def get_teacher_class_details(
+    class_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get detailed information about a specific class for teachers."""
+    if current_user.role != "teacher":
+        raise HTTPException(status_code=403, detail="Only teachers can access class details")
+
+    # Verify teacher owns the class
+    class_obj = db.query(Class).filter(
+        Class.id == class_id,
+        Class.teacher_id == current_user.id
+    ).first()
+    if not class_obj:
+        raise HTTPException(status_code=404, detail="Class not found or access denied")
+
+    # Get students in the class
+    students = db.query(User).filter(User.class_id == class_id).all()
+    total_students = len(students)
+    student_ids = [s.id for s in students]
+
+    # Build student list with performance data
+    student_list = []
+    for student in students:
+        # Get average mastery score
+        avg_mastery = db.query(func.avg(Mastery.score)).filter(
+            Mastery.user_id == student.id
+        ).scalar() or 0.0
+
+        # Get homework completion status (simplified - count completed lessons)
+        completed_lessons = db.query(func.count(Progress.id)).filter(
+            Progress.user_id == student.id,
+            Progress.status == "completed"
+        ).scalar()
+
+        # Determine status based on recent activity and performance
+        today = datetime.utcnow().date()
+        recent_sessions = db.query(UserSession).filter(
+            UserSession.user_id == student.id,
+            func.date(UserSession.start_time) >= today - timedelta(days=7)
+        ).count()
+
+        if avg_mastery >= 80:
+            status = "Excellent"
+        elif avg_mastery >= 60:
+            status = "Good"
+        elif avg_mastery >= 40:
+            status = "Needs Improvement"
+        else:
+            status = "At Risk"
+
+        if recent_sessions == 0:
+            status = "Inactive"
+
+        student_list.append({
+            "id": student.id,
+            "name": student.full_name,
+            "email": student.email,
+            "mastery_score": round(avg_mastery, 1),
+            "completed_lessons": completed_lessons,
+            "status": status,
+            "recent_activity": recent_sessions > 0
+        })
+
+    # Get struggling topics (topics with low average mastery)
+    topic_mastery = db.query(
+        Mastery.topic,
+        func.avg(Mastery.score).label('avg_score'),
+        func.count(Mastery.user_id).label('student_count')
+    ).filter(
+        Mastery.user_id.in_(student_ids)
+    ).group_by(Mastery.topic).all()
+
+    struggling_topics = []
+    for topic, avg_score, count in topic_mastery:
+        if avg_score < 60:  # Consider topics with <60% average as struggling
+            struggling_students = db.query(func.count(Mastery.user_id)).filter(
+                Mastery.topic == topic,
+                Mastery.user_id.in_(student_ids),
+                Mastery.score < 50
+            ).scalar()
+
+            struggling_topics.append({
+                "topic": topic,
+                "average_mastery": round(avg_score, 1),
+                "struggling_students": struggling_students,
+                "total_students": count
+            })
+
+    # Sort struggling topics by average mastery (lowest first)
+    struggling_topics.sort(key=lambda x: x["average_mastery"])
+
+    # Calculate mastery distribution
+    mastery_distribution = {
+        "expert": 0,      # 80-100%
+        "advanced": 0,    # 60-79%
+        "intermediate": 0, # 40-59%
+        "beginner": 0     # 0-39%
+    }
+
+    for student in students:
+        avg_mastery = db.query(func.avg(Mastery.score)).filter(
+            Mastery.user_id == student.id
+        ).scalar() or 0.0
+
+        if avg_mastery >= 80:
+            mastery_distribution["expert"] += 1
+        elif avg_mastery >= 60:
+            mastery_distribution["advanced"] += 1
+        elif avg_mastery >= 40:
+            mastery_distribution["intermediate"] += 1
+        else:
+            mastery_distribution["beginner"] += 1
+
+    return TeacherClassDetails(
+        class_id=class_id,
+        class_name=class_obj.name,
+        subject=class_obj.subject,
+        total_students=total_students,
+        students=student_list,
+        struggling_topics=struggling_topics[:5],  # Top 5 struggling topics
+        mastery_distribution=mastery_distribution
+    )

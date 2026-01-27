@@ -29,7 +29,7 @@ Modify StudentDashboard and TeacherDashboard components to fetch real data from 
   - Upcoming assignments
   - Overall progress metrics
 
-- [ ] **Teacher Class Details API** - `/api/analytics/teacher/classes/{class_id}/details`
+- [x] **Teacher Class Details API** - `/api/analytics/teacher/classes/{class_id}/details`
   - Student list with performance data
   - At-risk students identification
   - Topic mastery distribution
@@ -38,7 +38,7 @@ Modify StudentDashboard and TeacherDashboard components to fetch real data from 
 
 ### Phase 1: Backend API Development
 - [x] Add student dashboard endpoint in `analytics.py`
-- [ ] Add teacher class details endpoint in `analytics.py`
+- [x] Add teacher class details endpoint in `analytics.py`
 - [ ] Test new endpoints with existing demo data
 
 ### Phase 2: StudentDashboard Refactoring
@@ -53,14 +53,14 @@ Modify StudentDashboard and TeacherDashboard components to fetch real data from 
 - [x] Add loading states and error handling (following ManagerDashboard pattern)
 
 ### Phase 3: TeacherDashboard Refactoring
-- [ ] Import React Query hooks (`useQuery`)
-- [ ] Replace hardcoded metrics with `/api/analytics/dashboard` data
+- [x] Import React Query hooks (`useQuery`)
+- [x] Replace hardcoded metrics with `/api/analytics/dashboard` data
 - [ ] Implement class selector functionality with real class data
 - [ ] Fetch student list and performance data dynamically
 - [ ] Replace hardcoded student table with API-driven data
 - [ ] Implement "At-Risk Students" identification with real criteria
 - [ ] Add topic struggling analysis with real mastery data
-- [ ] Add loading states and error handling
+- [x] Add loading states and error handling
 
 ### Phase 4: Code Quality & Refactoring
 - [ ] Extract common loading/error state components
