@@ -50,6 +50,16 @@ class InterventionCreate(BaseModel):
     priority: str = "medium"
     lesson_id: Optional[int] = None
 
+class StudentDashboardData(BaseModel):
+    active_classes_count: int
+    completed_tasks_count: int
+    average_grade: float
+    current_streak: int
+    total_points: int
+    classes: List[Dict[str, Any]]
+    recent_activity: List[Dict[str, Any]]
+    upcoming_assignments: List[Dict[str, Any]]
+
 # Analytics endpoints
 @router.get(
     "/dashboard",
@@ -146,6 +156,172 @@ def get_teacher_dashboard(db: Session = Depends(get_db), current_user: User = De
         total_questions_attempted=total_questions,
         completion_rate=round(completion_rate, 1),
         top_performing_students=top_performing_students
+    )
+
+@router.get(
+    "/student/dashboard",
+    response_model=StudentDashboardData,
+    summary="Get Student Dashboard Data",
+    description="""Get comprehensive dashboard data for the current student including:
+
+    - **Active Classes Count**: Number of classes the student is enrolled in
+    - **Completed Tasks Count**: Number of completed assignments/lessons
+    - **Average Grade**: Overall mastery score percentage
+    - **Current Streak**: Current consecutive days of activity
+    - **Total Points**: Gamification points earned
+    - **Classes**: List of enrolled classes with details
+    - **Recent Activity**: Last activities (practice sessions, lesson completions)
+    - **Upcoming Assignments**: Due assignments and deadlines
+
+    **Note**: Only students can access this endpoint.
+    """,
+    responses={
+        200: {"description": "Student dashboard data retrieved successfully"},
+        403: {"description": "Access denied - Only students can access their dashboard"}
+    }
+)
+def get_student_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get dashboard data for the current student."""
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Only students can access their dashboard")
+
+    # Get student's class and courses
+    if not current_user.class_id:
+        return StudentDashboardData(
+            active_classes_count=0,
+            completed_tasks_count=0,
+            average_grade=0.0,
+            current_streak=0,
+            total_points=0,
+            classes=[],
+            recent_activity=[],
+            upcoming_assignments=[]
+        )
+
+    # Get courses for student's class
+    from models import Course, Unit, Lesson
+    courses = db.query(Course).filter(Course.class_id == current_user.class_id).all()
+    active_classes_count = len(courses)
+
+    # Get completed tasks (progress records with completed status)
+    completed_tasks_count = db.query(func.count(Progress.id)).filter(
+        Progress.user_id == current_user.id,
+        Progress.status == "completed"
+    ).scalar()
+
+    # Get average grade (average mastery score)
+    avg_mastery = db.query(func.avg(Mastery.score)).filter(
+        Mastery.user_id == current_user.id
+    ).scalar() or 0.0
+    average_grade = round(avg_mastery, 1)
+
+    # Get gamification data
+    gamification = db.query(Gamification).filter(Gamification.user_id == current_user.id).first()
+    current_streak = gamification.streak if gamification else 0
+    total_points = gamification.points if gamification else 0
+
+    # Build classes list
+    classes = []
+    for course in courses:
+        # Get course progress
+        course_lessons = db.query(Lesson).join(Unit).filter(Unit.course_id == course.id).all()
+        lesson_ids = [l.id for l in course_lessons]
+
+        if lesson_ids:
+            completed_course_lessons = db.query(func.count(Progress.id)).filter(
+                Progress.user_id == current_user.id,
+                Progress.lesson_id.in_(lesson_ids),
+                Progress.status == "completed"
+            ).scalar()
+
+            next_lesson = None
+            for lesson in course_lessons:
+                progress = db.query(Progress).filter(
+                    Progress.user_id == current_user.id,
+                    Progress.lesson_id == lesson.id
+                ).first()
+                if not progress or progress.status != "completed":
+                    next_lesson = lesson.title
+                    break
+
+            grade = db.query(func.avg(Mastery.score)).filter(
+                Mastery.user_id == current_user.id,
+                Mastery.topic.like(f"%{course.subject}%")
+            ).scalar() or 0.0
+        else:
+            completed_course_lessons = 0
+            next_lesson = "No lessons available"
+            grade = 0.0
+
+        classes.append({
+            "id": course.id,
+            "name": course.name,
+            "subject": course.subject,
+            "teacher_name": current_user.student_class.teacher.full_name if current_user.student_class else "Unknown",
+            "completed_lessons": completed_course_lessons,
+            "total_lessons": len(course_lessons),
+            "next_lesson": next_lesson,
+            "grade": round(grade, 1)
+        })
+
+    # Get recent activity (last 10 items)
+    recent_activity = []
+
+    # Get recent practice sessions
+    recent_sessions = db.query(UserSession).filter(
+        UserSession.user_id == current_user.id
+    ).order_by(desc(UserSession.start_time)).limit(5).all()
+
+    for session in recent_sessions:
+        accuracy = (session.correct_answers / session.questions_attempted * 100) if session.questions_attempted > 0 else 0
+        recent_activity.append({
+            "type": "practice",
+            "description": f"Practiced {session.session_type}",
+            "timestamp": session.start_time.isoformat(),
+            "details": f"{session.correct_answers}/{session.questions_attempted} correct ({round(accuracy, 1)}%)"
+        })
+
+    # Get recent lesson completions
+    recent_completions = db.query(Progress).filter(
+        Progress.user_id == current_user.id,
+        Progress.status == "completed"
+    ).order_by(desc(Progress.last_accessed)).limit(5).all()
+
+    for completion in recent_completions:
+        lesson = db.query(Lesson).filter(Lesson.id == completion.lesson_id).first()
+        if lesson:
+            recent_activity.append({
+                "type": "lesson_completion",
+                "description": f"Completed lesson: {lesson.title}",
+                "timestamp": completion.last_accessed.isoformat(),
+                "details": f"{completion.completion_percentage}% completion"
+            })
+
+    # Sort recent activity by timestamp
+    recent_activity.sort(key=lambda x: x["timestamp"], reverse=True)
+    recent_activity = recent_activity[:10]
+
+    # Get upcoming assignments (for now, simulate with course deadlines)
+    # In a real implementation, this would come from an assignments table
+    upcoming_assignments = []
+    for course in courses[:3]:  # Show next 3 courses
+        upcoming_assignments.append({
+            "title": f"{course.name} Review",
+            "course_name": course.name,
+            "due_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+            "priority": "medium",
+            "type": "review"
+        })
+
+    return StudentDashboardData(
+        active_classes_count=active_classes_count,
+        completed_tasks_count=completed_tasks_count,
+        average_grade=average_grade,
+        current_streak=current_streak,
+        total_points=total_points,
+        classes=classes,
+        recent_activity=recent_activity,
+        upcoming_assignments=upcoming_assignments
     )
 
 @router.get(

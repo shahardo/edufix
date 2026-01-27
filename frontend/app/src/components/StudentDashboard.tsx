@@ -1,4 +1,76 @@
+import { useQuery } from '@tanstack/react-query';
+
+// API function to fetch student dashboard data
+const fetchStudentDashboard = async () => {
+  const token = localStorage.getItem('token');
+  const response = await fetch('http://localhost:8000/api/analytics/student/dashboard', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch student dashboard data');
+  }
+
+  return response.json();
+};
+
+// Helper function to get initials from name
+const getInitials = (name: string) => {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase();
+};
+
+// Helper function to format relative time
+const formatRelativeTime = (timestamp: string) => {
+  const now = new Date();
+  const date = new Date(timestamp);
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+  if (diffInHours < 1) return 'Just now';
+  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+
+  return date.toLocaleDateString();
+};
+
 const StudentDashboard = () => {
+  // Fetch student dashboard data
+  const { data: dashboardData, isLoading, error } = useQuery({
+    queryKey: ['student-dashboard'],
+    queryFn: fetchStudentDashboard,
+  });
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <i className="fas fa-exclamation-triangle text-4xl"></i>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600">Unable to load dashboard data. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
@@ -27,8 +99,10 @@ const StudentDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white mb-8">
-          <h1 className="text-2xl font-bold mb-2">Welcome back, Sarah! 👋</h1>
-          <p className="text-blue-100">You have 3 upcoming assignments and 2 new messages.</p>
+          <h1 className="text-2xl font-bold mb-2">Welcome back! 👋</h1>
+          <p className="text-blue-100">
+            You have {dashboardData?.upcoming_assignments?.length || 0} upcoming assignments.
+          </p>
         </div>
 
         {/* Quick Stats */}
@@ -40,7 +114,7 @@ const StudentDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Classes</p>
-                <p className="text-2xl font-bold text-gray-900">4</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData?.active_classes_count || 0}</p>
               </div>
             </div>
           </div>
@@ -52,7 +126,7 @@ const StudentDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Completed Tasks</p>
-                <p className="text-2xl font-bold text-gray-900">23</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData?.completed_tasks_count || 0}</p>
               </div>
             </div>
           </div>
@@ -64,7 +138,7 @@ const StudentDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Average Grade</p>
-                <p className="text-2xl font-bold text-gray-900">87%</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData?.average_grade || 0}%</p>
               </div>
             </div>
           </div>
@@ -76,7 +150,7 @@ const StudentDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Current Streak</p>
-                <p className="text-2xl font-bold text-gray-900">12 days</p>
+                <p className="text-2xl font-bold text-gray-900">{dashboardData?.current_streak || 0} days</p>
               </div>
             </div>
           </div>
@@ -91,69 +165,34 @@ const StudentDashboard = () => {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center mb-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                  <i className="fas fa-flask text-blue-600"></i>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Chemistry 10B</h3>
-                  <p className="text-sm text-gray-600">Mr. Smith</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-600">
-                <div>Next: Stoichiometry Quiz</div>
-                <div className="mt-1">Grade: 85%</div>
-              </div>
-            </div>
+            {dashboardData?.classes && dashboardData.classes.length > 0 ? dashboardData.classes.slice(0, 4).map((classItem: any, index: number) => {
+              const icons = ['fas fa-flask', 'fas fa-leaf', 'fas fa-calculator', 'fas fa-globe', 'fas fa-atom', 'fas fa-dna'];
+              const colors = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-red-100 text-red-600', 'bg-yellow-100 text-yellow-600', 'bg-indigo-100 text-indigo-600'];
+              const icon = icons[index % icons.length];
+              const colorClass = colors[index % colors.length];
 
-            <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center mb-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                  <i className="fas fa-leaf text-green-600"></i>
+              return (
+                <div key={classItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex items-center mb-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${colorClass}`}>
+                      <i className={icon}></i>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">{classItem.name}</h3>
+                      <p className="text-sm text-gray-600">{classItem.teacher_name}</p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <div>Next: {classItem.next_lesson || 'No upcoming lessons'}</div>
+                    <div className="mt-1">Grade: {classItem.grade}%</div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Biology 10C</h3>
-                  <p className="text-sm text-gray-600">Ms. Johnson</p>
-                </div>
+              );
+            }) : (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                No classes found
               </div>
-              <div className="text-sm text-gray-600">
-                <div>Next: Cell Structure Lab</div>
-                <div className="mt-1">Grade: 92%</div>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center mb-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                  <i className="fas fa-calculator text-purple-600"></i>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Physics 10A</h3>
-                  <p className="text-sm text-gray-600">Dr. Brown</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-600">
-                <div>Next: Forces & Motion</div>
-                <div className="mt-1">Grade: 78%</div>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center mb-3">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                  <i className="fas fa-globe text-red-600"></i>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Geography 10D</h3>
-                  <p className="text-sm text-gray-600">Mrs. Davis</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-600">
-                <div>Next: Climate Systems</div>
-                <div className="mt-1">Grade: 94%</div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -163,45 +202,31 @@ const StudentDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <i className="fas fa-check text-green-600 text-sm"></i>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">Completed Chemistry homework</p>
-                  <p className="text-xs text-gray-600">2 hours ago</p>
-                </div>
-              </div>
+              {dashboardData?.recent_activity && dashboardData.recent_activity.length > 0 ? dashboardData.recent_activity.map((activity: any, index: number) => {
+                const icons = ['fas fa-check', 'fas fa-brain', 'fas fa-trophy', 'fas fa-star', 'fas fa-book'];
+                const colors = ['bg-green-100 text-green-600', 'bg-blue-100 text-blue-600', 'bg-purple-100 text-purple-600', 'bg-yellow-100 text-yellow-600', 'bg-indigo-100 text-indigo-600'];
+                const icon = icons[index % icons.length];
+                const colorClass = colors[index % colors.length];
 
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <i className="fas fa-brain text-blue-600 text-sm"></i>
+                return (
+                  <div key={index} className="flex items-start space-x-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${colorClass}`}>
+                      <i className={`${icon} text-sm`}></i>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-900">{activity.description}</p>
+                      <p className="text-xs text-gray-600">{formatRelativeTime(activity.timestamp)}</p>
+                      {activity.details && (
+                        <p className="text-xs text-gray-500 mt-1">{activity.details}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              }) : (
+                <div className="text-center text-gray-500 py-4">
+                  No recent activity
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">Practiced stoichiometry problems</p>
-                  <p className="text-xs text-gray-600">1 day ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <i className="fas fa-trophy text-purple-600 text-sm"></i>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">Earned "Chemistry Master" badge</p>
-                  <p className="text-xs text-gray-600">3 days ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <i className="fas fa-star text-yellow-600 text-sm"></i>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">Scored 95% on Biology quiz</p>
-                  <p className="text-xs text-gray-600">5 days ago</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -209,38 +234,49 @@ const StudentDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Assignments</h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center">
-                  <i className="fas fa-exclamation-triangle text-red-600 mr-3"></i>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Chemistry Lab Report</p>
-                    <p className="text-xs text-gray-600">Chemistry 10B</p>
-                  </div>
-                </div>
-                <span className="text-xs font-medium text-red-600">Due Today</span>
-              </div>
+              {dashboardData?.upcoming_assignments && dashboardData.upcoming_assignments.length > 0 ? dashboardData.upcoming_assignments.map((assignment: any, index: number) => {
+                const icons = ['fas fa-exclamation-triangle', 'fas fa-flask', 'fas fa-book', 'fas fa-calculator'];
+                const colors = ['bg-red-50 border-red-200 text-red-600', 'bg-yellow-50 border-yellow-200 text-yellow-600', 'bg-blue-50 border-blue-200 text-blue-600', 'bg-green-50 border-green-200 text-green-600'];
+                const icon = icons[index % icons.length];
+                const colorClass = colors[index % colors.length];
 
-              <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center">
-                  <i className="fas fa-flask text-yellow-600 mr-3"></i>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Physics Problem Set</p>
-                    <p className="text-xs text-gray-600">Physics 10A</p>
-                  </div>
-                </div>
-                <span className="text-xs font-medium text-yellow-600">Due Tomorrow</span>
-              </div>
+                const dueDate = new Date(assignment.due_date);
+                const now = new Date();
+                const daysDiff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-              <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center">
-                  <i className="fas fa-book text-blue-600 mr-3"></i>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Biology Reading</p>
-                    <p className="text-xs text-gray-600">Biology 10C</p>
+                let dueText = '';
+                let dueColor = '';
+                if (daysDiff < 0) {
+                  dueText = 'Overdue';
+                  dueColor = 'text-red-600';
+                } else if (daysDiff === 0) {
+                  dueText = 'Due Today';
+                  dueColor = 'text-red-600';
+                } else if (daysDiff === 1) {
+                  dueText = 'Due Tomorrow';
+                  dueColor = 'text-yellow-600';
+                } else {
+                  dueText = `Due in ${daysDiff} days`;
+                  dueColor = 'text-blue-600';
+                }
+
+                return (
+                  <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${colorClass.split(' ')[0]} border ${colorClass.split(' ')[1]}`}>
+                    <div className="flex items-center">
+                      <i className={`${icon} mr-3 ${colorClass.split(' ')[2]}`}></i>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{assignment.title}</p>
+                        <p className="text-xs text-gray-600">{assignment.course_name}</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs font-medium ${dueColor}`}>{dueText}</span>
                   </div>
+                );
+              }) : (
+                <div className="text-center text-gray-500 py-4">
+                  No upcoming assignments
                 </div>
-                <span className="text-xs font-medium text-blue-600">Due Friday</span>
-              </div>
+              )}
             </div>
           </div>
         </div>
