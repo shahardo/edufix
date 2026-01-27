@@ -32,16 +32,34 @@ def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 def create_demo_users(db):
-    """Create demo users (teachers and students)."""
+    """Create demo users (manager, teachers and students)."""
     print("Creating demo users...")
 
     # Check if users already exist
     existing_users = db.query(User).count()
+
+    # Always try to create manager if it doesn't exist
+    manager = db.query(User).filter(User.role == "manager").first()
+    if not manager:
+        manager = User(
+            username="manager",
+            email="manager@edufix.edu",
+            hashed_password=hash_password("pass123"),
+            full_name="EduFix Manager",
+            role="manager",
+            language="en"
+        )
+        db.add(manager)
+        db.commit()
+        print("✓ Created 1 manager user (username: manager, password: pass123)")
+    else:
+        print("✓ Manager user already exists")
+
     if existing_users > 0:
-        print(f"Users already exist ({existing_users} found), skipping user creation")
+        print(f"Other users already exist ({existing_users} found), skipping additional user creation")
         teachers = db.query(User).filter(User.role == "teacher").all()
         students = db.query(User).filter(User.role == "student").all()
-        return teachers, students
+        return manager, teachers, students
 
     # Create teachers
     teachers = []
@@ -72,8 +90,10 @@ def create_demo_users(db):
         students.append(student)
 
     db.commit()
-    print(f"Created {len(teachers)} teachers and {len(students)} students")
-    return teachers, students
+    print(f"✓ Created {len(teachers)} teacher users (usernames: teacher1, teacher2, teacher3)")
+    print(f"✓ Created {len(students)} student users (usernames: student1-student{len(students)})")
+    print("  All users have password: pass123")
+    return manager, teachers, students
 
 def create_demo_classes(db, teachers, students):
     """Create demo classes."""
@@ -378,7 +398,7 @@ def main():
 
     try:
         # Create demo data in order
-        teachers, students = create_demo_users(db)
+        manager, teachers, students = create_demo_users(db)
         classes = create_demo_classes(db, teachers, students)
         courses = create_demo_courses(db, classes)
         lessons = create_demo_units_and_lessons(db, courses)
@@ -391,10 +411,22 @@ def main():
         create_demo_progress(db, students, lessons)
         create_demo_interventions(db, students, teachers, lessons)
 
-        print("Demo data generation completed successfully!")
+        print("\n🎉 Demo data generation completed successfully!")
+        print("\n📋 Summary of created entities:")
+        print(f"  • Manager: 1 user (login: manager/pass123)")
+        print(f"  • Teachers: {len(teachers)} users (login: teacher1-teacher{len(teachers)}/pass123)")
+        print(f"  • Students: {len(students)} users (login: student1-student{len(students)}/pass123)")
+        print(f"  • Classes: ~{len(classes)} classroom groups")
+        print(f"  • Courses: ~{len(courses)} learning modules")
+        print(f"  • Lessons: ~{len(lessons)} individual lessons")
+        print(f"  • Materials: ~{len(materials)} teaching resources")
+        print(f"  • Questions: ~{len(questions)} practice questions")
+        print("  • User answers, mastery scores, gamification data")
+        print("  • Session tracking and progress records")
+        print("  • Teacher interventions and recommendations")
 
     except Exception as e:
-        print(f"Error generating demo data: {e}")
+        print(f"❌ Error generating demo data: {e}")
         db.rollback()
     finally:
         db.close()
