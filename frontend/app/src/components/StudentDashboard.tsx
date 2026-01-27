@@ -1,7 +1,12 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from './shared/LoadingSpinner';
+import ErrorMessage from './shared/ErrorMessage';
+import { getInitials, formatRelativeTime } from '../utils/formatters';
+import type { StudentDashboardData } from '../types/api';
 
 // API function to fetch student dashboard data
-const fetchStudentDashboard = async () => {
+const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
   const token = localStorage.getItem('token');
   const response = await fetch('http://localhost:8000/api/analytics/student/dashboard', {
     headers: {
@@ -17,26 +22,6 @@ const fetchStudentDashboard = async () => {
   return response.json();
 };
 
-// Helper function to get initials from name
-const getInitials = (name: string) => {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase();
-};
-
-// Helper function to format relative time
-const formatRelativeTime = (timestamp: string) => {
-  const now = new Date();
-  const date = new Date(timestamp);
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-
-  if (diffInHours < 1) return 'Just now';
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-
-  return date.toLocaleDateString();
-};
-
 const StudentDashboard = () => {
   // Fetch student dashboard data
   const { data: dashboardData, isLoading, error } = useQuery({
@@ -46,28 +31,17 @@ const StudentDashboard = () => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading your dashboard..." className="min-h-screen" />;
   }
 
   // Error state
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">
-            <i className="fas fa-exclamation-triangle text-4xl"></i>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Dashboard</h2>
-          <p className="text-gray-600">Unable to load dashboard data. Please try again later.</p>
-        </div>
-      </div>
+      <ErrorMessage
+        title="Error Loading Dashboard"
+        message="Unable to load dashboard data. Please try again later."
+        className="min-h-screen"
+      />
     );
   }
 

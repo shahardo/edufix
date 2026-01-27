@@ -1,5 +1,9 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from './shared/LoadingSpinner';
+import ErrorMessage from './shared/ErrorMessage';
+import { getInitials, formatRelativeTime, getMasteryColorClasses, getStatusColorClasses, calculateAttendanceRate } from '../utils/formatters';
+import type { DashboardMetrics, TeacherClassDetails } from '../types/api';
 
 // API function to fetch teacher dashboard data
 const fetchTeacherDashboard = async () => {
@@ -67,28 +71,17 @@ const TeacherDashboard = () => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading your dashboard..." className="min-h-screen" />;
   }
 
   // Error state
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">
-            <i className="fas fa-exclamation-triangle text-4xl"></i>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Dashboard</h2>
-          <p className="text-gray-600">Unable to load dashboard data. Please try again later.</p>
-        </div>
-      </div>
+      <ErrorMessage
+        title="Error Loading Dashboard"
+        message="Unable to load dashboard data. Please try again later."
+        className="min-h-screen"
+      />
     );
   }
 
