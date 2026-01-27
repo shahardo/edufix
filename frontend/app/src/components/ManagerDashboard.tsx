@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import LoadingSpinner from './shared/LoadingSpinner';
+import ErrorMessage from './shared/ErrorMessage';
+import Header from './shared/Header';
+import Footer from './shared/Footer';
+import type { User } from '../types/api';
 
 // API function to fetch management data
 const fetchManagementData = async (endpoint: string) => {
@@ -20,11 +26,15 @@ const fetchManagementData = async (endpoint: string) => {
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
+  // Load user from localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
 
   // Fetch all management data
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useQuery({
@@ -92,35 +102,10 @@ const ManagerDashboard = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">EduFix</h1>
-              <span className="ml-4 text-lg text-gray-700">Management Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
-                <i className="fas fa-globe mr-1"></i>EN
-              </button>
-              <div className="flex items-center space-x-2">
-                <i className="fas fa-user-shield text-2xl text-purple-400"></i>
-                <span className="text-sm text-gray-700">Manager</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                <i className="fas fa-sign-out-alt mr-1"></i>Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header title="Management Dashboard" user={user} showUserMenu={true} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Platform Overview Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -434,27 +419,7 @@ const ManagerDashboard = () => {
         </div>
       </main>
 
-      {/* Mobile Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-around items-center">
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-home text-xl"></i>
-            <span className="text-xs mt-1">Home</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-users text-xl"></i>
-            <span className="text-xs mt-1">Teachers</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-school text-xl"></i>
-            <span className="text-xs mt-1">Classes</span>
-          </button>
-          <button className="flex flex-col items-center text-purple-600">
-            <i className="fas fa-cog text-xl"></i>
-            <span className="text-xs mt-1">Manage</span>
-          </button>
-        </div>
-      </nav>
+      <Footer user={user} />
     </div>
   );
 };

@@ -45,9 +45,9 @@ User roles are stored in the database and returned by the `/auth/users/me` endpo
 
 ### Phase 3: Update Dashboard Components
 - [x] **StudentDashboard.tsx**: Replace inline header with `<Header title="Student Dashboard" user={user} showUserMenu={true} />`
-- [ ] **TeacherDashboard.tsx**: Replace inline header with `<Header title="Teacher Dashboard" user={user} showUserMenu={true} />`
-- [ ] **ManagerDashboard.tsx**: Replace inline header with `<Header title="Management Dashboard" user={user} showUserMenu={true} />`
-- [ ] **Add Footer** to all dashboard pages
+- [x] **TeacherDashboard.tsx**: Replace inline header with `<Header title="Teacher Dashboard" user={user} showUserMenu={true} />`
+- [x] **ManagerDashboard.tsx**: Replace inline header with `<Header title="Management Dashboard" user={user} showUserMenu={true} />`
+- [x] **Add Footer** to all dashboard pages
 
 ### Phase 4: Update App Structure
 - [ ] **App.tsx**: Add user context/state management to store authenticated user
@@ -86,10 +86,10 @@ User roles are stored in the database and returned by the `/auth/users/me` endpo
 - `frontend/app/src/types/api.ts` (add user types if needed)
 
 ## Acceptance Criteria
-- [ ] Header and footer components created and working
-- [ ] Login no longer requires role selection
-- [ ] User role automatically determined from backend
-- [ ] User menu with logout functionality implemented
-- [ ] All dashboard pages use shared header/footer
-- [ ] Responsive design maintained
-- [ ] No breaking changes to existing functionality
+- [x] Header and footer components created and working
+- [x] Login no longer requires role selection
+- [x] User role automatically determined from backend
+- [x] User menu with logout functionality implemented
+- [x] All dashboard pages use shared header/footer
+- [x] Responsive design maintained
+- [x] No breaking changes to existing functionality
