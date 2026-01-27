@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import type { User } from '../types/api';
 
 type LoginForm = {
   username: string;
@@ -8,10 +9,7 @@ type LoginForm = {
   rememberMe: boolean;
 };
 
-type Role = 'student' | 'teacher' | 'manager';
-
 const Login = () => {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const navigate = useNavigate();
 
@@ -23,11 +21,6 @@ const Login = () => {
 
   const onSubmit = async (data: LoginForm) => {
     setErrorMessage('');
-
-    if (!selectedRole) {
-      setErrorMessage('Please select your role.');
-      return;
-    }
 
     try {
       // Call the backend authentication API
@@ -49,13 +42,32 @@ const Login = () => {
         // Store the token in localStorage
         localStorage.setItem('token', token);
 
-        // Successful login - redirect based on role
-        if (selectedRole === 'student') {
-          navigate('/student');
-        } else if (selectedRole === 'teacher') {
-          navigate('/teacher');
-        } else if (selectedRole === 'manager') {
-          navigate('/manager');
+        // Fetch user details to determine role
+        const userResponse = await fetch('http://localhost:8000/auth/users/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (userResponse.ok) {
+          const user: User = await userResponse.json();
+
+          // Store user data in localStorage
+          localStorage.setItem('user', JSON.stringify(user));
+
+          // Successful login - redirect based on role from backend
+          if (user.role === 'student') {
+            navigate('/student');
+          } else if (user.role === 'teacher') {
+            navigate('/teacher');
+          } else if (user.role === 'manager') {
+            navigate('/manager');
+          } else {
+            setErrorMessage('Invalid user role. Please contact administrator.');
+          }
+        } else {
+          setErrorMessage('Failed to fetch user details. Please try again.');
         }
       } else {
         const errorData = await response.json();
@@ -65,11 +77,6 @@ const Login = () => {
       console.error('Login error:', error);
       setErrorMessage('Network error. Please try again later.');
     }
-  };
-
-  const selectRole = (role: Role) => {
-    setSelectedRole(role);
-    setErrorMessage(''); // Clear any error when role is selected
   };
 
   return (
@@ -88,49 +95,6 @@ const Login = () => {
 
         {/* Login Form */}
         <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
-          {/* Role Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">I am a:</label>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => selectRole('student')}
-                className={`role-btn px-4 py-3 border-2 rounded-lg transition-colors ${
-                  selectedRole === 'student'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
-                }`}
-              >
-                <i className="fas fa-user-graduate text-blue-600 mb-2 text-xl"></i>
-                <div className="text-sm font-medium text-gray-900">Student</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => selectRole('teacher')}
-                className={`role-btn px-4 py-3 border-2 rounded-lg transition-colors ${
-                  selectedRole === 'teacher'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
-                }`}
-              >
-                <i className="fas fa-chalkboard-teacher text-green-600 mb-2 text-xl"></i>
-                <div className="text-sm font-medium text-gray-900">Teacher</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => selectRole('manager')}
-                className={`role-btn px-4 py-3 border-2 rounded-lg transition-colors ${
-                  selectedRole === 'manager'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
-                }`}
-              >
-                <i className="fas fa-cog text-purple-600 mb-2 text-xl"></i>
-                <div className="text-sm font-medium text-gray-900">Manager</div>
-              </button>
-            </div>
-          </div>
-
           {/* Login Fields */}
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>

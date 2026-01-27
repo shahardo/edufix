@@ -1,5 +1,15 @@
 // TypeScript interfaces for API responses
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+  role: string;
+  language: string;
+  class_id?: number;
+}
+
 export interface DashboardMetrics {
   total_students: number;
   active_students_today: number;

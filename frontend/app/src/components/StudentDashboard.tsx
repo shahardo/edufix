@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
+import Header from './shared/Header';
+import Footer from './shared/Footer';
 import { getInitials, formatRelativeTime } from '../utils/formatters';
-import type { StudentDashboardData } from '../types/api';
+import type { StudentDashboardData, User } from '../types/api';
 
 /**
  * Fetches student dashboard data from the API
@@ -43,6 +45,16 @@ const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
  * @returns JSX.Element
  */
 const StudentDashboard = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  // Load user from localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
   // Fetch student dashboard data
   const { data: dashboardData, isLoading, error } = useQuery({
     queryKey: ['student-dashboard'],
@@ -67,27 +79,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">EduFix</h1>
-              <span className="ml-4 text-lg text-gray-700">Student Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
-                <i className="fas fa-globe mr-1"></i>EN
-              </button>
-              <div className="flex items-center space-x-2">
-                <i className="fas fa-user-circle text-2xl text-gray-400"></i>
-                <span className="text-sm text-gray-700">Sarah Chen</span>
-                <i className="fas fa-chevron-down text-gray-400 ml-1"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header title="Student Dashboard" user={user} showUserMenu={true} />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -320,27 +312,7 @@ const StudentDashboard = () => {
         </div>
       </main>
 
-      {/* Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-around items-center">
-          <button className="flex flex-col items-center text-blue-600">
-            <i className="fas fa-home text-xl"></i>
-            <span className="text-xs mt-1">Home</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-book text-xl"></i>
-            <span className="text-xs mt-1">Lessons</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-brain text-xl"></i>
-            <span className="text-xs mt-1">Practice</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-            <i className="fas fa-chart-bar text-xl"></i>
-            <span className="text-xs mt-1">Analytics</span>
-          </button>
-        </div>
-      </nav>
+      <Footer />
     </div>
   );
 };
