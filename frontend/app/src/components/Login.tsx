@@ -25,30 +25,45 @@ const Login = () => {
     setErrorMessage('');
 
     if (!selectedRole) {
-      setErrorMessage('Please select whether you are a Student or Teacher.');
+      setErrorMessage('Please select your role.');
       return;
     }
 
-    // Demo login logic - in production, this would call the API
-    const validCredentials = {
-      student: { username: 'student1', password: 'password' },
-      teacher: { username: 'teacher1', password: 'password' },
-      manager: { username: 'manager1', password: 'password' }
-    };
+    try {
+      // Call the backend authentication API
+      const response = await fetch('http://localhost:8000/auth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: data.username,
+          password: data.password,
+        }),
+      });
 
-    if (selectedRole in validCredentials && data.username === validCredentials[selectedRole].username &&
-        data.password === validCredentials[selectedRole].password) {
+      if (response.ok) {
+        const tokenData = await response.json();
+        const token = tokenData.access_token;
 
-      // Successful login - redirect based on role
-      if (selectedRole === 'student') {
-        navigate('/student');
-      } else if (selectedRole === 'teacher') {
-        navigate('/teacher');
-      } else if (selectedRole === 'manager') {
-        navigate('/manager');
+        // Store the token in localStorage
+        localStorage.setItem('token', token);
+
+        // Successful login - redirect based on role
+        if (selectedRole === 'student') {
+          navigate('/student');
+        } else if (selectedRole === 'teacher') {
+          navigate('/teacher');
+        } else if (selectedRole === 'manager') {
+          navigate('/manager');
+        }
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(errorData.detail || 'Login failed. Please check your credentials.');
       }
-    } else {
-      setErrorMessage('Invalid credentials. Please try again.');
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage('Network error. Please try again later.');
     }
   };
 
@@ -214,9 +229,9 @@ const Login = () => {
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h4>
             <div className="text-xs text-gray-600 space-y-1">
-              <div><strong>Student:</strong> student1 / password</div>
-              <div><strong>Teacher:</strong> teacher1 / password</div>
-              <div><strong>Manager:</strong> manager1 / password</div>
+              <div><strong>Manager:</strong> manager / pass123</div>
+              <div><strong>Teacher:</strong> teacher1 / pass123</div>
+              <div><strong>Student:</strong> student1 / pass123</div>
             </div>
           </div>
         </div>
