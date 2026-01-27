@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext';
 import type { User } from '../types/api';
 
 type LoginForm = {
@@ -12,6 +13,7 @@ type LoginForm = {
 const Login = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const {
     register,
@@ -55,6 +57,9 @@ const Login = () => {
 
           // Store user data in localStorage
           localStorage.setItem('user', JSON.stringify(user));
+
+          // Set user in context
+          setUser(user);
 
           // Successful login - redirect based on role from backend
           if (user.role === 'student') {

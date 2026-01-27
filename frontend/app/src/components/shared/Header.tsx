@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext';
 import type { User } from '../../types/api';
 
 interface HeaderProps {
@@ -10,11 +11,11 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, user, showUserMenu = true }) => {
   const navigate = useNavigate();
+  const { logout } = useUser();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/');
   };
 

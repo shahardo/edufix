@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
+import { useUser } from '../contexts/UserContext';
 import { getInitials, formatRelativeTime, getMasteryColorClasses, getStatusColorClasses, calculateAttendanceRate } from '../utils/formatters';
-import type { DashboardMetrics, TeacherClassDetails, User } from '../types/api';
+import type { DashboardMetrics, TeacherClassDetails } from '../types/api';
 
 /**
  * TeacherDashboard Component
@@ -42,15 +43,7 @@ const fetchTeacherDashboard = async () => {
 };
 
 const TeacherDashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  // Load user from localStorage on component mount
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
+  const { user } = useUser();
 
   // Fetch teacher dashboard data
   const { data: dashboardData, isLoading, error } = useQuery({

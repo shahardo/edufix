@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
+import { useUser } from '../contexts/UserContext';
 import { getInitials, formatRelativeTime } from '../utils/formatters';
-import type { StudentDashboardData, User } from '../types/api';
+import type { StudentDashboardData } from '../types/api';
 
 /**
  * Fetches student dashboard data from the API
@@ -45,15 +46,7 @@ const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
  * @returns JSX.Element
  */
 const StudentDashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  // Load user from localStorage on component mount
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
+  const { user } = useUser();
 
   // Fetch student dashboard data
   const { data: dashboardData, isLoading, error } = useQuery({

@@ -50,9 +50,9 @@ User roles are stored in the database and returned by the `/auth/users/me` endpo
 - [x] **Add Footer** to all dashboard pages
 
 ### Phase 4: Update App Structure
-- [ ] **App.tsx**: Add user context/state management to store authenticated user
-- [ ] **Add logout functionality** that clears user state and redirects to login
-- [ ] **Protected routes**: Ensure user role matches dashboard type
+- [x] **App.tsx**: Add user context/state management to store authenticated user
+- [x] **Add logout functionality** that clears user state and redirects to login
+- [x] **Protected routes**: Ensure user role matches dashboard type
 
 ### Phase 5: Testing & Polish
 - [ ] Test login flow with different user roles

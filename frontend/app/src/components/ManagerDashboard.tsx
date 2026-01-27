@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
-import type { User } from '../types/api';
+import { useUser } from '../contexts/UserContext';
 
 // API function to fetch management data
 const fetchManagementData = async (endpoint: string) => {
@@ -26,15 +26,7 @@ const fetchManagementData = async (endpoint: string) => {
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-
-  // Load user from localStorage on component mount
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
+  const { user } = useUser();
 
   // Fetch all management data
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useQuery({
