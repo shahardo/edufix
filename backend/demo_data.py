@@ -22,7 +22,7 @@ import random
 from datetime import datetime, timedelta
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 fake = Faker(['en_US', 'he_IL'])
 fake.seed_instance(42)  # For reproducible results
@@ -391,6 +391,11 @@ def create_demo_interventions(db, students, teachers, lessons):
 def main():
     """Main function to generate all demo data."""
     print("Starting demo data generation...")
+
+    # Create database tables if they don't exist
+    from models import Base
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created/verified.")
 
     # Create database session
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
