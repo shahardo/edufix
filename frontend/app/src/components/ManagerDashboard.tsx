@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 // API function to fetch management data
 const fetchManagementData = async (endpoint: string) => {
@@ -18,6 +19,13 @@ const fetchManagementData = async (endpoint: string) => {
 };
 
 const ManagerDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   // Fetch all management data
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useQuery({
     queryKey: ['management-overview'],
@@ -100,6 +108,12 @@ const ManagerDashboard = () => {
                 <i className="fas fa-user-shield text-2xl text-purple-400"></i>
                 <span className="text-sm text-gray-700">Manager</span>
               </div>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                <i className="fas fa-sign-out-alt mr-1"></i>Logout
+              </button>
             </div>
           </div>
         </div>
