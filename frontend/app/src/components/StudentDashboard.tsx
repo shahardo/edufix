@@ -5,7 +5,12 @@ import ErrorMessage from './shared/ErrorMessage';
 import { getInitials, formatRelativeTime } from '../utils/formatters';
 import type { StudentDashboardData } from '../types/api';
 
-// API function to fetch student dashboard data
+/**
+ * Fetches student dashboard data from the API
+ *
+ * @returns Promise<StudentDashboardData> - Dashboard metrics and activity data
+ * @throws Error when API request fails
+ */
 const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
   const token = localStorage.getItem('token');
   const response = await fetch('http://localhost:8000/api/analytics/student/dashboard', {
@@ -22,6 +27,21 @@ const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
   return response.json();
 };
 
+/**
+ * StudentDashboard Component
+ *
+ * Displays a comprehensive dashboard for students showing their academic progress,
+ * enrolled classes, recent activity, and upcoming assignments.
+ *
+ * Features:
+ * - Real-time metrics from database (classes, grades, streaks)
+ * - Dynamic class list with progress indicators
+ * - Recent activity feed with timestamps
+ * - Upcoming assignments with due dates
+ * - Responsive design with loading/error states
+ *
+ * @returns JSX.Element
+ */
 const StudentDashboard = () => {
   // Fetch student dashboard data
   const { data: dashboardData, isLoading, error } = useQuery({

@@ -1,5 +1,19 @@
 import React from 'react';
 
+/**
+ * ErrorMessage Component
+ *
+ * A reusable error message display with optional retry functionality.
+ *
+ * @example
+ * ```tsx
+ * <ErrorMessage
+ *   title="Connection Failed"
+ *   message="Unable to load data. Please check your internet connection."
+ *   onRetry={() => refetch()}
+ * />
+ * ```
+ */
 interface ErrorMessageProps {
   title?: string;
   message?: string;

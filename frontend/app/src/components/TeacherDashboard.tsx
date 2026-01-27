@@ -5,6 +5,23 @@ import ErrorMessage from './shared/ErrorMessage';
 import { getInitials, formatRelativeTime, getMasteryColorClasses, getStatusColorClasses, calculateAttendanceRate } from '../utils/formatters';
 import type { DashboardMetrics, TeacherClassDetails } from '../types/api';
 
+/**
+ * TeacherDashboard Component
+ *
+ * Comprehensive dashboard for teachers showing class performance, student progress,
+ * struggling topics, and actionable insights.
+ *
+ * Features:
+ * - Class selector for filtering data by specific classes
+ * - Real-time metrics from database (completion rates, mastery scores, attendance)
+ * - Dynamic student performance table with status indicators
+ * - Struggling topics analysis with intervention recommendations
+ * - Mastery distribution charts and analytics
+ * - Responsive design with loading/error states
+ *
+ * @returns JSX.Element
+ */
+
 // API function to fetch teacher dashboard data
 const fetchTeacherDashboard = async () => {
   const token = localStorage.getItem('token');

@@ -1,5 +1,16 @@
 import React from 'react';
 
+/**
+ * LoadingSpinner Component
+ *
+ * A reusable loading spinner with customizable size and message.
+ *
+ * @example
+ * ```tsx
+ * <LoadingSpinner size="lg" message="Loading dashboard..." />
+ * <LoadingSpinner size="sm" className="mt-4" />
+ * ```
+ */
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
   message?: string;
