@@ -28,6 +28,7 @@ const Header: React.FC<HeaderProps> = ({ title, user, showUserMenu = true }) => 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
+            <img src="/edufix-logo.svg" alt="EduFix Logo" className="h-10 w-10 mr-3" />
             <h1 className="text-2xl font-bold text-blue-600">EduFix</h1>
             <span className="ml-4 text-lg text-gray-700">{title}</span>
           </div>
