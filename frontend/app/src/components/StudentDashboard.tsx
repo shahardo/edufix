@@ -1,11 +1,10 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
-import { getInitials, formatRelativeTime } from '../utils/formatters';
+import { formatRelativeTime } from '../utils/formatters';
 import type { StudentDashboardData } from '../types/api';
 
 /**

@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
-import { getInitials, formatRelativeTime, getMasteryColorClasses, getStatusColorClasses, calculateAttendanceRate } from '../utils/formatters';
-import type { DashboardMetrics, TeacherClassDetails } from '../types/api';
 
 /**
  * TeacherDashboard Component

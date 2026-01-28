@@ -1,8 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import React from 'react';
-import LoadingSpinner from './shared/LoadingSpinner';
-import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
@@ -25,7 +21,6 @@ const fetchManagementData = async (endpoint: string) => {
 };
 
 const ManagerDashboard = () => {
-  const navigate = useNavigate();
   const { user } = useUser();
 
   // Fetch all management data
