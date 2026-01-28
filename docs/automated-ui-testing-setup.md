@@ -17,7 +17,7 @@ This guide provides comprehensive setup and usage instructions for automated UI 
 ## Prerequisites
 
 ### System Requirements
-- Node.js 16+
+- Node.js 18+
 - npm or yarn
 - Running backend server on `http://localhost:8000`
 - Running frontend dev server on `http://localhost:5173`
@@ -58,57 +58,75 @@ npm install --save-dev \
 
 ### Configuration Files
 
-#### package.json (Testing Scripts)
+#### package.json (Testing Scripts and Jest Configuration)
 ```json
 {
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --watchAll=false"
+    "test": "node ./node_modules/jest/bin/jest.js",
+    "test:watch": "node ./node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node ./node_modules/jest/bin/jest.js --coverage",
+    "test:ci": "node ./node_modules/jest/bin/jest.js --coverage --watchAll=false"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/src/setupTests.ts"],
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    },
+    "transform": {
+      "^.+\\.(ts|tsx)$": ["ts-jest", {
+        "tsconfig": "<rootDir>/tsconfig.json"
+      }]
+    },
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)",
+      "<rootDir>/src/**/*.(test|spec).(ts|tsx|js|jsx)"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.(ts|tsx)",
+      "!src/main.tsx",
+      "!src/vite-env.d.ts",
+      "!src/**/*.d.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
   }
 }
 ```
 
-
-
-#### jest.config.js
-```javascript
-module.exports = {
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
-  },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json'
-    }]
-  },
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
-    '<rootDir>/src/**/*.(test|spec).(ts|tsx|js|jsx)'
-  ],
-  collectCoverageFrom: [
-    'src/**/*.(ts|tsx)',
-    '!src/main.tsx',
-    '!src/vite-env.d.ts',
-    '!src/**/*.d.ts'
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70
-    }
-  }
-};
-```
-
 #### src/setupTests.ts
 ```typescript
+/// <reference types="jest" />
+
 import '@testing-library/jest-dom';
+
+// Polyfill TextEncoder for jsdom if not available
+if (typeof globalThis.TextEncoder === 'undefined') {
+  // Simple TextEncoder polyfill for jsdom
+  (globalThis as any).TextEncoder = class TextEncoder {
+    encode(input: string): Uint8Array {
+      const utf8 = unescape(encodeURIComponent(input));
+      const result = new Uint8Array(utf8.length);
+      for (let i = 0; i < utf8.length; i++) {
+        result[i] = utf8.charCodeAt(i);
+      }
+      return result;
+    }
+  };
+
+  (globalThis as any).TextDecoder = class TextDecoder {
+    decode(input: Uint8Array): string {
+      const utf8 = String.fromCharCode(...Array.from(input));
+      return decodeURIComponent(escape(utf8));
+    }
+  };
+}
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -117,8 +135,8 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
@@ -132,32 +150,53 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-global.localStorage = localStorageMock;
+(globalThis as any).localStorage = localStorageMock;
 
 // Mock window.location
 delete (window as any).location;
-window.location = {
-  ...window.location,
+(window as any).location = {
   href: 'http://localhost:5173',
   pathname: '/',
   search: '',
   hash: '',
+  origin: 'http://localhost:5173',
+  protocol: 'http:',
+  host: 'localhost:5173',
+  hostname: 'localhost',
+  port: '5173',
+  assign: jest.fn(),
+  reload: jest.fn(),
+  replace: jest.fn(),
 };
 
 // Mock fetch
-global.fetch = jest.fn();
+(globalThis as any).fetch = jest.fn();
+```
 
-// Mock React Router
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-  useLocation: () => ({
-    pathname: '/',
-    search: '',
-    hash: '',
-    state: null,
-  }),
-}));
+#### src/__mocks__/react-router-dom.ts
+```typescript
+// Mock for react-router-dom
+import React from 'react';
+const mockNavigate = jest.fn();
+
+export const useNavigate = () => mockNavigate;
+export const BrowserRouter = ({ children }: { children: React.ReactNode }) =>
+  React.createElement('div', { 'data-testid': 'browser-router' }, children);
+export const Routes = ({ children }: { children: React.ReactNode }) => children;
+export const Route = () => null;
+export const Link = ({ children, ...props }: any) =>
+  React.createElement('a', props, children);
+export const useLocation = () => ({
+  pathname: '/',
+  search: '',
+  hash: '',
+  state: null,
+});
+export const useParams = () => ({});
+export const Navigate = () => null;
+
+// Re-export the mock navigate function for tests
+export { mockNavigate };
 ```
 
 #### tsconfig.json (Add Jest Types)
@@ -186,36 +225,69 @@ src/
 ### Basic Component Test Example
 ```typescript
 // src/components/shared/Header.test.tsx
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import Header from './Header';
-import { UserProvider } from '../../contexts/UserContext';
+import { UserProvider, useUser } from '../../contexts/UserContext';
 
-const renderHeader = (user: any = null) => {
+// Mock the UserContext
+jest.mock('../../contexts/UserContext', () => ({
+  UserProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="user-provider">{children}</div>,
+  useUser: jest.fn(),
+}));
+
+// Mock react-router-dom completely
+jest.mock('react-router-dom');
+
+// Create a simple wrapper component for testing
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div data-testid="test-wrapper">{children}</div>
+);
+
+const renderHeader = (title: string, user: any = null) => {
   return render(
-    <BrowserRouter>
+    <TestWrapper>
       <UserProvider>
-        <Header title="Test Dashboard" user={user} />
+        <Header title={title} user={user} />
       </UserProvider>
-    </BrowserRouter>
+    </TestWrapper>
   );
 };
 
 describe('Header Component', () => {
-  it('renders EduFix logo', () => {
-    renderHeader();
-    expect(screen.getByText('EduFix')).toBeInTheDocument();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Set up default mock for useUser
+    (useUser as jest.Mock).mockReturnValue({
+      user: null,
+      logout: jest.fn(),
+      setUser: jest.fn(),
+      isLoading: false,
+    });
   });
 
-  it('shows user menu when authenticated', () => {
+  it('renders EduFix logo and title', () => {
+    renderHeader('Student Dashboard');
+    expect(screen.getByText('EduFix')).toBeInTheDocument();
+    expect(screen.getByText('Student Dashboard')).toBeInTheDocument();
+  });
+
+  it('renders language selector', () => {
+    renderHeader('Student Dashboard');
+    expect(screen.getByText('EN')).toBeInTheDocument();
+  });
+
+  it('renders user menu when user is provided', () => {
     const mockUser = {
       id: 1,
       username: 'student1',
       full_name: 'John Doe',
-      role: 'student'
+      email: 'john.doe@example.com',
+      language: 'en',
+      role: 'student',
     };
 
-    renderHeader(mockUser);
+    renderHeader('Student Dashboard', mockUser);
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 });
@@ -238,17 +310,32 @@ it('toggles user dropdown menu', async () => {
 
 ### Testing API Calls
 ```typescript
-it('fetches dashboard data', async () => {
-  // Mock API response
-  (global.fetch as jest.Mock).mockResolvedValueOnce({
-    ok: true,
-    json: () => Promise.resolve(mockDashboardData)
-  });
+import { mockApiResponses, createMockFetchResponse } from '../test-utils/testData';
+
+it('fetches and displays student dashboard data', async () => {
+  // Mock API response using test utilities
+  (global.fetch as jest.Mock).mockResolvedValueOnce(
+    createMockFetchResponse(mockApiResponses.studentDashboard)
+  );
 
   render(<StudentDashboard />);
 
   await waitFor(() => {
-    expect(screen.getByText('Welcome back!')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument(); // active_classes_count
+    expect(screen.getByText('23')).toBeInTheDocument(); // completed_tasks_count
+  });
+});
+
+it('handles API error gracefully', async () => {
+  // Mock failed API response
+  (global.fetch as jest.Mock).mockResolvedValueOnce(
+    createMockFetchResponse(null, false)
+  );
+
+  render(<StudentDashboard />);
+
+  await waitFor(() => {
+    expect(screen.getByText(/error|failed/i)).toBeInTheDocument();
   });
 });
 ```
@@ -384,27 +471,122 @@ e2e/login.spec.ts              # E2E tests
 ### Test Data Management
 ```typescript
 // src/test-utils/testData.ts
+import type { User } from '../types/api';
+
 export const mockUsers = {
   student: {
     id: 1,
     username: 'student1',
     full_name: 'John Student',
-    role: 'student'
+    role: 'student' as const,
+    email: 'john.student@edufix.com'
   },
   teacher: {
     id: 2,
     username: 'teacher1',
     full_name: 'Jane Teacher',
-    role: 'teacher'
+    role: 'teacher' as const,
+    email: 'jane.teacher@edufix.com'
+  },
+  manager: {
+    id: 3,
+    username: 'manager',
+    full_name: 'Bob Manager',
+    role: 'manager' as const,
+    email: 'bob.manager@edufix.com'
   }
 };
 
-export const mockDashboardData = {
-  active_classes_count: 4,
-  completed_tasks_count: 23,
-  average_grade: 87,
-  current_streak: 5
+export const mockApiResponses = {
+  studentDashboard: {
+    active_classes_count: 4,
+    completed_tasks_count: 23,
+    average_grade: 87,
+    current_streak: 5,
+    classes: [
+      {
+        id: 1,
+        name: 'Chemistry 101',
+        teacher_name: 'Dr. Smith',
+        grade: 85
+      },
+      {
+        id: 2,
+        name: 'Physics 101',
+        teacher_name: 'Prof. Johnson',
+        grade: 90
+      }
+    ],
+    recent_activity: [
+      {
+        id: 1,
+        description: 'Completed Chemistry quiz',
+        timestamp: '2024-01-15T10:30:00Z',
+        details: 'Score: 88%'
+      },
+      {
+        id: 2,
+        description: 'Submitted Physics homework',
+        timestamp: '2024-01-14T15:45:00Z',
+        details: 'On time submission'
+      }
+    ],
+    upcoming_assignments: [
+      {
+        id: 1,
+        title: 'Biology Lab Report',
+        course_name: 'Biology 101',
+        due_date: '2024-01-20T23:59:00Z'
+      },
+      {
+        id: 2,
+        title: 'Math Problem Set',
+        course_name: 'Calculus I',
+        due_date: '2024-01-18T23:59:00Z'
+      }
+    ]
+  },
+
+  teacherDashboard: {
+    total_students: 26,
+    completion_rate: 92,
+    average_mastery_score: 78,
+    active_students_today: 24,
+    classes: [
+      { id: 1, name: 'Chemistry 10B', studentCount: 26 },
+      { id: 2, name: 'Physics 10A', studentCount: 24 }
+    ]
+  },
+
+  managerDashboard: {
+    total_teachers: 8,
+    total_students: 245,
+    total_classes: 12,
+    total_lessons: 156,
+    teachers: [
+      {
+        id: 1,
+        full_name: 'Dr. Smith',
+        email: 'smith@edufix.com',
+        class_count: 3,
+        student_count: 78
+      }
+    ]
+  }
 };
+
+export const mockLocalStorageData = {
+  token: 'mock-jwt-token-12345',
+  user: JSON.stringify(mockUsers.student)
+};
+
+export const createMockFetchResponse = (data: any, ok = true) => ({
+  ok,
+  json: () => Promise.resolve(data),
+  text: () => Promise.resolve(JSON.stringify(data)),
+  status: ok ? 200 : 500,
+  statusText: ok ? 'OK' : 'Internal Server Error'
+});
 ```
 
 ## 7. CI/CD Integration
@@ -494,5 +676,12 @@ npm test -- --updateSnapshot
 - **Flaky test rate**: < 1% of tests
 - **Coverage maintenance**: No significant drops
 - **CI build success rate**: > 95%
+
+## Additional Resources
+
+- **Quick Start Guide**: See `TESTING.md` in the frontend/app directory for a concise testing quick start guide
+- **React Testing Library**: https://testing-library.com/docs/react-testing-library/intro/
+- **Jest Documentation**: https://jestjs.io/docs/getting-started
+- **Playwright** (E2E): https://playwright.dev/
 
 This automated testing setup provides comprehensive coverage for the EduFix UI, ensuring reliable and maintainable code quality throughout development.
