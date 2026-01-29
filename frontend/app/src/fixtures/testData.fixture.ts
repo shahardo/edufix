@@ -1,28 +1,28 @@
-import React from 'react';
-import type { User } from '../types/api';
-
 // Mock user data for testing
-export const mockUsers = {
+export const mockUsers: Record<string, import('../types/api').User> = {
   student: {
     id: 1,
     username: 'student1',
     full_name: 'John Student',
     role: 'student' as const,
-    email: 'john.student@edufix.com'
+    email: 'john.student@edufix.com',
+    language: 'en'
   },
   teacher: {
     id: 2,
     username: 'teacher1',
     full_name: 'Jane Teacher',
     role: 'teacher' as const,
-    email: 'jane.teacher@edufix.com'
+    email: 'jane.teacher@edufix.com',
+    language: 'en'
   },
   manager: {
     id: 3,
     username: 'manager',
     full_name: 'Bob Manager',
     role: 'manager' as const,
-    email: 'bob.manager@edufix.com'
+    email: 'bob.manager@edufix.com',
+    language: 'en'
   }
 };
 

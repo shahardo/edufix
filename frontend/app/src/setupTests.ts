@@ -2,6 +2,34 @@
 
 import '@testing-library/jest-dom';
 
+// Suppress React Router future flag warnings
+const originalWarn = console.warn;
+console.warn = (...args: any[]) => {
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].includes('React Router Future Flag Warning') ||
+     args[0].includes('⚠️ React Router'))
+  ) {
+    return; // Suppress React Router warnings
+  }
+  originalWarn.apply(console, args);
+};
+
+// Suppress specific act warnings and test-related errors that are expected in tests
+const originalError = console.error;
+console.error = (...args: any[]) => {
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].includes('Warning: An update to') &&
+     args[0].includes('inside a test was not wrapped in act(...)')) ||
+    args[0].includes('Login error:') ||
+    args[0].includes('Network error')
+  ) {
+    return; // Suppress act warnings and test errors in tests
+  }
+  originalError.apply(console, args);
+};
+
 // Polyfill TextEncoder for jsdom if not available
 if (typeof globalThis.TextEncoder === 'undefined') {
   // Simple TextEncoder polyfill for jsdom

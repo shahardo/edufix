@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import type { User } from '../../types/api';
@@ -13,6 +13,7 @@ const Header: React.FC<HeaderProps> = ({ title, user, showUserMenu = true }) => 
   const navigate = useNavigate();
   const { logout } = useUser();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     logout();
@@ -22,6 +23,23 @@ const Header: React.FC<HeaderProps> = ({ title, user, showUserMenu = true }) => 
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-40">
@@ -37,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ title, user, showUserMenu = true }) => 
               <i className="fas fa-globe mr-1"></i>EN
             </button>
             {showUserMenu && user && (
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
                   className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
