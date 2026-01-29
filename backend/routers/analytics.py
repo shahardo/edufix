@@ -69,6 +69,34 @@ class TeacherClassDetails(BaseModel):
     struggling_topics: List[Dict[str, Any]]
     mastery_distribution: Dict[str, int]
 
+class StudentCoursesData(BaseModel):
+    courses: List[Dict[str, Any]]
+    recent_lessons: List[Dict[str, Any]]
+
+class StudentExercisesData(BaseModel):
+    math_exercises: int
+    science_exercises: int
+    english_exercises: int
+    history_exercises: int
+    recent_sessions: List[Dict[str, Any]]
+    recommended_exercises: List[Dict[str, Any]]
+
+class StudentDetailedAnalytics(BaseModel):
+    overall_mastery: float
+    mastery_improvement: float
+    current_streak: int
+    best_streak: int
+    total_questions: int
+    accuracy: float
+    achievements_count: int
+    recent_badges: int
+    subject_mastery: List[Dict[str, Any]]
+    progress_timeline: List[Dict[str, Any]]
+    strengths: List[Dict[str, Any]]
+    weaknesses: List[Dict[str, Any]]
+    recent_achievements: List[Dict[str, Any]]
+    activity_calendar: List[Dict[str, Any]]
+
 # Analytics endpoints
 @router.get(
     "/dashboard",
@@ -698,4 +726,360 @@ def get_teacher_class_details(
         students=student_list,
         struggling_topics=struggling_topics[:5],  # Top 5 struggling topics
         mastery_distribution=mastery_distribution
+    )
+
+@router.get(
+    "/student/courses",
+    response_model=StudentCoursesData,
+    summary="Get Student Courses and Lessons",
+    description="""Get courses and lessons data for the current student including:
+
+    - **Courses**: List of enrolled courses with progress information
+    - **Recent Lessons**: Recently accessed lessons for quick resume
+
+    **Note**: Only students can access this endpoint.
+    """,
+    responses={
+        200: {"description": "Student courses data retrieved successfully"},
+        403: {"description": "Access denied - Only students can access their courses"}
+    }
+)
+def get_student_courses(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get courses and lessons data for the current student."""
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Only students can access their courses")
+
+    # Get student's class and courses
+    if not current_user.class_id:
+        return StudentCoursesData(courses=[], recent_lessons=[])
+
+    # Get courses for student's class
+    from models import Course, Unit, Lesson
+    courses = db.query(Course).filter(Course.class_id == current_user.class_id).all()
+
+    # Build courses list with progress information
+    courses_data = []
+    for course in courses:
+        # Get course lessons
+        course_lessons = db.query(Lesson).join(Unit).filter(Unit.course_id == course.id).all()
+        lesson_ids = [l.id for l in course_lessons]
+
+        if lesson_ids:
+            # Get progress for this course
+            completed_course_lessons = db.query(func.count(Progress.id)).filter(
+                Progress.user_id == current_user.id,
+                Progress.lesson_id.in_(lesson_ids),
+                Progress.status == "completed"
+            ).scalar()
+
+            total_lessons = len(course_lessons)
+
+            # Get average grade for the course
+            grade = db.query(func.avg(Mastery.score)).filter(
+                Mastery.user_id == current_user.id,
+                Mastery.topic.like(f"%{course.subject}%")
+            ).scalar() or 0.0
+        else:
+            completed_course_lessons = 0
+            total_lessons = 0
+            grade = 0.0
+
+        courses_data.append({
+            "id": course.id,
+            "name": course.name,
+            "subject": course.subject,
+            "teacher_name": current_user.student_class.teacher.full_name if current_user.student_class else "Unknown",
+            "completed_lessons": completed_course_lessons,
+            "total_lessons": total_lessons,
+            "grade": round(grade, 1)
+        })
+
+    # Get recent lessons (last 5 accessed)
+    recent_lessons = []
+    recent_progress = db.query(Progress).filter(
+        Progress.user_id == current_user.id
+    ).order_by(desc(Progress.last_accessed)).limit(5).all()
+
+    for progress in recent_progress:
+        lesson = db.query(Lesson).filter(Lesson.id == progress.lesson_id).first()
+        if lesson:
+            # Get lesson's course
+            unit = db.query(Unit).filter(Unit.id == lesson.unit_id).first()
+            course = db.query(Course).filter(Course.id == unit.course_id).first() if unit else None
+
+            recent_lessons.append({
+                "id": lesson.id,
+                "title": lesson.title,
+                "course_name": course.name if course else "Unknown Course",
+                "duration": "15 min",  # Placeholder - would come from lesson metadata
+                "completion_percentage": progress.completion_percentage
+            })
+
+    return StudentCoursesData(
+        courses=courses_data,
+        recent_lessons=recent_lessons
+    )
+
+@router.get(
+    "/student/exercises",
+    response_model=StudentExercisesData,
+    summary="Get Student Exercises Data",
+    description="""Get exercises and practice data for the current student including:
+
+    - **Exercise Counts**: Number of available exercises by subject
+    - **Recent Sessions**: Recent practice sessions with performance
+    - **Recommended Exercises**: Personalized exercise suggestions
+
+    **Note**: Only students can access this endpoint.
+    """,
+    responses={
+        200: {"description": "Student exercises data retrieved successfully"},
+        403: {"description": "Access denied - Only students can access their exercises"}
+    }
+)
+def get_student_exercises(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get exercises and practice data for the current student."""
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Only students can access their exercises")
+
+    # Get exercise counts by subject (simplified - using mastery topics as proxy)
+    math_exercises = db.query(func.count(Mastery.id)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.topic.like("%math%")
+    ).scalar()
+
+    science_exercises = db.query(func.count(Mastery.id)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.topic.like("%science%")
+    ).scalar()
+
+    english_exercises = db.query(func.count(Mastery.id)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.topic.like("%english%")
+    ).scalar()
+
+    history_exercises = db.query(func.count(Mastery.id)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.topic.like("%history%")
+    ).scalar()
+
+    # Get recent practice sessions
+    recent_sessions = []
+    recent_user_sessions = db.query(UserSession).filter(
+        UserSession.user_id == current_user.id
+    ).order_by(desc(UserSession.start_time)).limit(5).all()
+
+    for session in recent_user_sessions:
+        accuracy = (session.correct_answers / session.questions_attempted * 100) if session.questions_attempted and session.questions_attempted > 0 else 0
+        recent_sessions.append({
+            "id": session.id,
+            "topic": session.session_type,
+            "score": round(accuracy, 1),
+            "questions_attempted": session.questions_attempted,
+            "duration": f"{session.duration} min",
+            "date": session.start_time.date().isoformat()
+        })
+
+    # Generate recommended exercises based on weak areas
+    recommended_exercises = []
+    weak_masteries = db.query(Mastery).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.score < 70
+    ).order_by(Mastery.score).limit(3).all()
+
+    for mastery in weak_masteries:
+        recommended_exercises.append({
+            "id": mastery.id,
+            "title": f"Practice: {mastery.topic}",
+            "topic": mastery.topic,
+            "difficulty": "medium" if mastery.score < 50 else "easy",
+            "description": f"Strengthen your understanding of {mastery.topic}",
+            "estimated_time": "10 min"
+        })
+
+    return StudentExercisesData(
+        math_exercises=math_exercises,
+        science_exercises=science_exercises,
+        english_exercises=english_exercises,
+        history_exercises=history_exercises,
+        recent_sessions=recent_sessions,
+        recommended_exercises=recommended_exercises
+    )
+
+@router.get(
+    "/student/detailed",
+    response_model=StudentDetailedAnalytics,
+    summary="Get Student Detailed Analytics",
+    description="""Get comprehensive analytics data for the current student including:
+
+    - **Performance Metrics**: Mastery scores, streaks, accuracy
+    - **Subject Mastery**: Performance breakdown by subject
+    - **Progress Timeline**: Daily progress over the last week
+    - **Strengths & Weaknesses**: Areas of excellence and improvement
+    - **Achievements**: Recent badges and accomplishments
+    - **Activity Calendar**: Study activity visualization
+
+    **Note**: Only students can access their own detailed analytics.
+    """,
+    responses={
+        200: {"description": "Student detailed analytics retrieved successfully"},
+        403: {"description": "Access denied - Only students can access their analytics"}
+    }
+)
+def get_student_detailed_analytics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get detailed analytics data for the current student."""
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Only students can access their analytics")
+
+    # Get overall mastery and improvement
+    overall_mastery = db.query(func.avg(Mastery.score)).filter(
+        Mastery.user_id == current_user.id
+    ).scalar() or 0.0
+
+    # Calculate mastery improvement (compare last 30 days to previous 30 days)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    sixty_days_ago = datetime.utcnow() - timedelta(days=60)
+
+    recent_mastery = db.query(func.avg(Mastery.score)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.updated_at >= thirty_days_ago
+    ).scalar() or 0.0
+
+    older_mastery = db.query(func.avg(Mastery.score)).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.updated_at.between(sixty_days_ago, thirty_days_ago)
+    ).scalar() or 0.0
+
+    mastery_improvement = recent_mastery - older_mastery
+
+    # Get gamification data
+    gamification = db.query(Gamification).filter(Gamification.user_id == current_user.id).first()
+    current_streak = gamification.streak if gamification else 0
+    best_streak = gamification.streak if gamification else 0  # Use current streak as best streak
+
+    # Get total questions and accuracy
+    total_questions = db.query(func.count(UserAnswer.id)).filter(
+        UserAnswer.user_id == current_user.id
+    ).scalar()
+
+    total_correct = db.query(func.sum(UserAnswer.is_correct)).filter(
+        UserAnswer.user_id == current_user.id
+    ).scalar() or 0
+
+    accuracy = (total_correct / total_questions * 100) if total_questions > 0 else 0.0
+
+    # Get achievements count (simplified - count completed lessons)
+    achievements_count = db.query(func.count(Progress.id)).filter(
+        Progress.user_id == current_user.id,
+        Progress.status == "completed"
+    ).scalar() or 0
+
+    recent_badges = 0  # Placeholder - would come from achievements system
+
+    # Get subject mastery
+    subject_mastery = []
+    mastery_by_topic = db.query(
+        Mastery.topic,
+        func.avg(Mastery.score).label('avg_score')
+    ).filter(
+        Mastery.user_id == current_user.id
+    ).group_by(Mastery.topic).all()
+
+    for topic, score in mastery_by_topic:
+        subject_mastery.append({
+            "name": topic,
+            "score": round(score, 1)
+        })
+
+    # Get progress timeline (last 7 days)
+    progress_timeline = []
+    for i in range(7):
+        date = datetime.utcnow() - timedelta(days=i)
+        day_mastery = db.query(func.avg(Mastery.score)).filter(
+            Mastery.user_id == current_user.id,
+            func.date(Mastery.updated_at) == date.date()
+        ).scalar() or 0.0
+
+        progress_timeline.append({
+            "date": date.strftime("%Y-%m-%d"),
+            "score": round(day_mastery, 1)
+        })
+
+    # Get strengths (topics with score >= 80)
+    strengths = []
+    high_masteries = db.query(Mastery).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.score >= 80
+    ).all()
+
+    for mastery in high_masteries[:3]:  # Top 3 strengths
+        strengths.append({
+            "topic": mastery.topic,
+            "description": f"Excellent performance in {mastery.topic}"
+        })
+
+    # Get weaknesses (topics with score < 60)
+    weaknesses = []
+    low_masteries = db.query(Mastery).filter(
+        Mastery.user_id == current_user.id,
+        Mastery.score < 60
+    ).order_by(Mastery.score).all()
+
+    for mastery in low_masteries[:3]:  # Top 3 weaknesses
+        weaknesses.append({
+            "topic": mastery.topic,
+            "description": f"Additional practice needed in {mastery.topic}"
+        })
+
+    # Get recent achievements (simplified - recent lesson completions)
+    recent_achievements = []
+    recent_completions = db.query(Progress).filter(
+        Progress.user_id == current_user.id,
+        Progress.status == "completed"
+    ).order_by(desc(Progress.last_accessed)).limit(3).all()
+
+    for i, completion in enumerate(recent_completions):
+        from models import Lesson
+        lesson = db.query(Lesson).filter(Lesson.id == completion.lesson_id).first()
+        if lesson:
+            icons = ["fa-graduation-cap", "fa-star", "fa-trophy"]
+            recent_achievements.append({
+                "id": completion.id,
+                "name": f"Completed: {lesson.title}",
+                "description": f"Successfully completed {lesson.title}",
+                "icon": icons[i % len(icons)],
+                "date": completion.last_accessed.strftime("%B %d, %Y")
+            })
+
+    # Generate activity calendar (last 35 days for 5 weeks)
+    activity_calendar = []
+    for i in range(35):
+        date = datetime.utcnow() - timedelta(days=34-i)
+        # Check if student had any activity on this day
+        activity_count = db.query(UserSession).filter(
+            UserSession.user_id == current_user.id,
+            func.date(UserSession.start_time) == date.date()
+        ).count()
+
+        activity_calendar.append({
+            "day": date.day,
+            "date": date.strftime("%Y-%m-%d"),
+            "active": activity_count > 0
+        })
+
+    return StudentDetailedAnalytics(
+        overall_mastery=round(overall_mastery, 1),
+        mastery_improvement=round(mastery_improvement, 1),
+        current_streak=current_streak,
+        best_streak=best_streak,
+        total_questions=total_questions,
+        accuracy=round(accuracy, 1),
+        achievements_count=achievements_count,
+        recent_badges=recent_badges,
+        subject_mastery=subject_mastery,
+        progress_timeline=progress_timeline,
+        strengths=strengths,
+        weaknesses=weaknesses,
+        recent_achievements=recent_achievements,
+        activity_calendar=activity_calendar
     )

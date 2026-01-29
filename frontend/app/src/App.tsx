@@ -5,6 +5,9 @@ import { UserProvider } from './contexts/UserContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Login from './components/Login';
 import StudentDashboard from './components/StudentDashboard';
+import StudentLessons from './components/StudentLessons';
+import StudentExercises from './components/StudentExercises';
+import StudentAnalytics from './components/StudentAnalytics';
 import TeacherDashboard from './components/TeacherDashboard';
 import ManagerDashboard from './components/ManagerDashboard';
 import ContentManagement from './components/ContentManagement';
@@ -33,6 +36,30 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="student">
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/lessons"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentLessons />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/exercises"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentExercises />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/analytics"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentAnalytics />
                   </ProtectedRoute>
                 }
               />
