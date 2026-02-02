@@ -7,6 +7,8 @@ import Login from './components/Login';
 import StudentDashboard from './components/StudentDashboard';
 import StudentLessons from './components/StudentLessons';
 import StudentExercises from './components/StudentExercises';
+import StudentCourseView from './components/StudentCourseView';
+import StudentLessonViewer from './components/StudentLessonViewer';
 import StudentAnalytics from './components/StudentAnalytics';
 import TeacherDashboard from './components/TeacherDashboard';
 import ManagerDashboard from './components/ManagerDashboard';
@@ -44,6 +46,22 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="student">
                     <StudentLessons />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/courses/:courseId"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentCourseView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/lessons/:lessonId"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentLessonViewer />
                   </ProtectedRoute>
                 }
               />

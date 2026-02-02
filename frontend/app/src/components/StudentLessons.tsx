@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
@@ -39,6 +40,7 @@ const fetchStudentCourses = async () => {
  */
 const StudentLessons = () => {
   const { user } = useUser();
+  const navigate = useNavigate();
 
   // Fetch student's courses and lessons
   const { data: coursesData, isLoading, error } = useQuery({
@@ -83,7 +85,11 @@ const StudentLessons = () => {
                 : 0;
 
               return (
-                <div key={course.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer">
+                <div 
+                  key={course.id} 
+                  onClick={() => navigate(`/student/courses/${course.id}`)}
+                  className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <div className="p-6">
                     {/* Course Header */}
                     <div className="flex items-start justify-between mb-4">
@@ -123,7 +129,13 @@ const StudentLessons = () => {
                     </div>
 
                     {/* Action Button */}
-                    <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/student/courses/${course.id}`);
+                      }}
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                    >
                       Continue Learning
                     </button>
                   </div>
@@ -155,7 +167,10 @@ const StudentLessons = () => {
                       <p className="text-sm text-gray-600">{lesson.course_name} • {lesson.duration}</p>
                     </div>
                   </div>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                  <button 
+                    onClick={() => navigate(`/student/lessons/${lesson.id}`)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  >
                     Resume
                   </button>
                 </div>
