@@ -17,6 +17,7 @@ import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 // Register Chart.js components
 ChartJS.register(
@@ -42,11 +43,7 @@ const fetchStudentAnalytics = async () => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch student analytics');
-  }
-
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch student analytics');
 };
 
 /**

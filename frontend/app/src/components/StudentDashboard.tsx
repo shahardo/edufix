@@ -6,6 +6,7 @@ import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
 import { formatRelativeTime } from '../utils/formatters';
 import type { StudentDashboardData } from '../types/api';
+import { handleApiResponse } from '../utils/api';
 
 /**
  * Fetches student dashboard data from the API
@@ -22,11 +23,7 @@ const fetchStudentDashboard = async (): Promise<StudentDashboardData> => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch student dashboard data');
-  }
-
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch student dashboard data');
 };
 
 /**

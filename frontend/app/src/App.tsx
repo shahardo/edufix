@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { UserProvider } from './contexts/UserContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
@@ -17,9 +17,34 @@ import Practice from './components/Practice';
 import './App.css';
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error: any) => {
+      if (error?.message === 'UNAUTHORIZED' || error?.status === 401) {
+        // Save the current user's email to verify identity on re-login
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            if (user.email) {
+              localStorage.setItem('session_expired_user', user.email);
+            }
+          } catch (e) {
+            // Ignore parsing errors
+          }
+        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/?returnUrl=${encodeURIComponent(currentPath)}`;
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        if (error?.message === 'UNAUTHORIZED' || error?.status === 401) return false;
+        return failureCount < 1;
+      },
       refetchOnWindowFocus: false,
     },
   },

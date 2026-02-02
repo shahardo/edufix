@@ -4,6 +4,7 @@ import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 /**
  * Fetches student's available exercises and practice sets
@@ -17,11 +18,7 @@ const fetchStudentExercises = async () => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch student exercises');
-  }
-
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch student exercises');
 };
 
 /**

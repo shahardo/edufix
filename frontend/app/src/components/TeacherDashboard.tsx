@@ -5,6 +5,7 @@ import ErrorMessage from './shared/ErrorMessage';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 /**
  * TeacherDashboard Component
@@ -33,11 +34,7 @@ const fetchTeacherDashboard = async () => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch teacher dashboard data');
-  }
-
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch teacher dashboard data');
 };
 
 const TeacherDashboard = () => {
@@ -69,11 +66,7 @@ const TeacherDashboard = () => {
       },
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch class details');
-    }
-
-    return response.json();
+    return handleApiResponse(response, 'Failed to fetch class details');
   }
 
   // Get teacher's classes from dashboard data (assuming we can derive this)

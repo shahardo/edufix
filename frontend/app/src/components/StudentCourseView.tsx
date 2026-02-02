@@ -6,6 +6,7 @@ import Footer from './shared/Footer';
 import LoadingSpinner from './shared/LoadingSpinner';
 import ErrorMessage from './shared/ErrorMessage';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 // Types
 interface Lesson {
@@ -41,8 +42,7 @@ const fetchCourse = async (courseId: string) => {
   const response = await fetch(`http://localhost:8000/api/courses/${courseId}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
-  if (!response.ok) throw new Error('Failed to fetch course');
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch course');
 };
 
 const fetchUnits = async (courseId: string) => {
@@ -50,8 +50,7 @@ const fetchUnits = async (courseId: string) => {
   const response = await fetch(`http://localhost:8000/api/units?course_id=${courseId}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
-  if (!response.ok) throw new Error('Failed to fetch units');
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch units');
 };
 
 const fetchLessons = async (unitId: number) => {
@@ -59,8 +58,7 @@ const fetchLessons = async (unitId: number) => {
   const response = await fetch(`http://localhost:8000/api/lessons?unit_id=${unitId}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
-  if (!response.ok) throw new Error('Failed to fetch lessons');
-  return response.json();
+  return handleApiResponse(response, 'Failed to fetch lessons');
 };
 
 // Sub-component for Unit to handle its own lessons fetching

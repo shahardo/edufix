@@ -61,15 +61,29 @@ const Login = () => {
           // Set user in context
           setUser(user);
 
-          // Successful login - redirect based on role from backend
-          if (user.role === 'student') {
-            navigate('/student');
-          } else if (user.role === 'teacher') {
-            navigate('/teacher');
-          } else if (user.role === 'manager') {
-            navigate('/manager');
+          // Check for a return URL from a timed-out session
+          const queryParams = new URLSearchParams(window.location.search);
+          const returnUrl = queryParams.get('returnUrl');
+          const expiredUserEmail = localStorage.getItem('session_expired_user');
+
+          // Always clean up the session expired user email after checking it
+          localStorage.removeItem('session_expired_user');
+
+          if (returnUrl && expiredUserEmail && expiredUserEmail === user.email) {
+            // If the user who just logged in is the one whose session expired,
+            // and there's a return URL, redirect them there.
+            navigate(returnUrl);
           } else {
-            setErrorMessage('Invalid user role. Please contact administrator.');
+            // Otherwise, perform the default role-based redirect.
+            if (user.role === 'student') {
+              navigate('/student');
+            } else if (user.role === 'teacher') {
+              navigate('/teacher');
+            } else if (user.role === 'manager') {
+              navigate('/manager');
+            } else {
+              setErrorMessage('Invalid user role. Please contact administrator.');
+            }
           }
         } else {
           setErrorMessage('Failed to fetch user details. Please try again.');

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 // API function to fetch management data
 const fetchManagementData = async (endpoint: string) => {
@@ -13,11 +14,7 @@ const fetchManagementData = async (endpoint: string) => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${endpoint}`);
-  }
-
-  return response.json();
+  return handleApiResponse(response, `Failed to fetch ${endpoint}`);
 };
 
 const ManagerDashboard = () => {

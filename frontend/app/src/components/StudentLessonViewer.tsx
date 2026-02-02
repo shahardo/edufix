@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { useUser } from '../contexts/UserContext';
+import { handleApiResponse } from '../utils/api';
 
 interface Lesson {
   id: number;
@@ -49,8 +50,7 @@ const StudentLessonViewer: React.FC = () => {
     queryKey: ['lesson', lessonId],
     queryFn: async () => {
       const res = await fetch(`http://localhost:8000/api/lessons/${lessonId}`, { headers });
-      if (!res.ok) throw new Error('Failed to fetch lesson');
-      return res.json();
+      return handleApiResponse(res, 'Failed to fetch lesson');
     }
   });
 
@@ -59,8 +59,7 @@ const StudentLessonViewer: React.FC = () => {
     queryKey: ['materials', lessonId],
     queryFn: async () => {
       const res = await fetch(`http://localhost:8000/api/materials?lesson_id=${lessonId}`, { headers });
-      if (!res.ok) throw new Error('Failed to fetch materials');
-      return res.json();
+      return handleApiResponse(res, 'Failed to fetch materials');
     },
     // Mock data if API returns empty or fails (for development)
     initialData: [
